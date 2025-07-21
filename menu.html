@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodLoft - Menu</title>
+  <link rel="stylesheet" href="menu.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <h1>FoodLoft</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="Homepage.html">Home</a></li>
+        <li><a href="menu.html">Menu</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li class="user-menu">
+          <img id="userAvatar" src="user.jpg" alt="User Profile" />
+          <ul class="dropdown" id="user-dropdown">
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Log Out</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="menu-section">
+    <h2>Our Menu</h2>
+    <div class="menu-list">
+      
+      <div class="menu-item">
+        <img src="kikiam.jpg" alt="Kikiam">
+        <h3>Kikiam</h3>
+        <p>A savory Chinese-inspired street food made of seasoned ground meat wrapped in bean curd skin.</p>
+        <div class="quantity-control">
+          <button onclick="decrease(this)">-</button>
+          <input type="number" value="1" min="1" />
+          <button onclick="increase(this)">+</button>
+        </div>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+
+      <div class="menu-item">
+        <img src="CMB.jpg" alt="Chinese Meatball">
+        <h3>Chinese Meatball</h3>
+        <p>Juicy and tender meatballs infused with garlic, soy sauce, and Chinese spices, perfect with rice or noodles.</p>
+        <div class="quantity-control">
+          <button onclick="decrease(this)">-</button>
+          <input type="number" value="1" min="1" />
+          <button onclick="increase(this)">+</button>
+        </div>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+
+      <div class="menu-item">
+        <img src="dumpling.jpg" alt="Dumpling">
+        <h3>Dumpling</h3>
+        <p>Soft dough filled with minced meat and vegetables, steamed to perfection for that authentic bite.</p>
+        <div class="quantity-control">
+          <button onclick="decrease(this)">-</button>
+          <input type="number" value="1" min="1" />
+          <button onclick="increase(this)">+</button>
+        </div>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 FoodLoft. Made with flavor and tradition.</p>
+    IG: @FoodLoft &nbsp; | &nbsp; FB: FoodLoft
+  </footer>
+
+  <script>
+    function increase(button) {
+      const input = button.previousElementSibling;
+      input.value = parseInt(input.value) + 1;
+    }
+
+    function decrease(button) {
+      const input = button.nextElementSibling;
+      if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff8f0;
+  color: #333;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #8b0000;
+  padding: 20px;
+  color: white;
+  font-family: 'Playfair Display', serif;
+}
+
+.logo h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+}
+
+nav ul li {
+  margin: 0 15px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.user-menu img:hover {
+  transform: scale(1.1);
+}
+
+.user-menu .dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: white;
+  min-width: 150px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 10;
+}
+
+.user-menu:hover .dropdown {
+  display: block;
+}
+
+.user-menu .dropdown li {
+  padding: 10px;
+  text-align: center;
+}
+
+.user-menu .dropdown li a {
+  text-decoration: none;
+  color: #8b0000;
+  display: block;
+  font-size: 1rem;
+}
+
+.user-menu .dropdown li a:hover {
+  background-color: #f3e5d8;
+}
+
+/* Cart Section */
+.cart-section {
+  padding: 60px 20px;
+  background-color: #fff0e5;
+  text-align: center;
+}
+
+.cart-section h2 {
+  font-size: 2.5rem;
+  color: #8b0000;
+  margin-bottom: 40px;
+  font-family: 'Playfair Display', serif;
+}
+
+.cart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Cart Item */
+.cart-item {
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.cart-item img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.item-details {
+  flex: 1;
+  text-align: left;
+}
+
+.item-details h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: #8b0000;
+  margin-bottom: 5px;
+}
+
+.item-details p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Quantity Controls */
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.quantity-control button {
+  background-color: #8b0000;
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.quantity-control button:hover {
+  background-color: #a30000;
+}
+
+.quantity-control input {
+  width: 45px;
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Remove Button */
+.remove-btn {
+  background-color: #8b0000;
+  color: white;
+  padding: 6px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.remove-btn:hover {
+  background-color: #a30000;
+}
+
+/* Checkout Button */
+.checkout-btn {
+  background-color: #8b0000;
+  color: white;
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.checkout-btn:hover {
+  background-color: #a30000;
+}
+
+/* Footer */
+footer {
+  background-color: #8b0000;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.95rem;
+  margin-top: 50px;
+}

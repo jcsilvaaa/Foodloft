@@ -1,0 +1,210 @@
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff8f0;
+  color: #333;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #8b0000;
+  padding: 20px;
+  color: white;
+  font-family: 'Playfair Display', serif;
+}
+
+.logo h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+}
+
+nav ul li {
+  margin: 0 15px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.user-menu img:hover {
+  transform: scale(1.1);
+}
+
+.user-menu .dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: white;
+  min-width: 150px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 10;
+}
+
+.user-menu:hover .dropdown {
+  display: block;
+}
+
+.user-menu .dropdown li {
+  padding: 10px;
+  text-align: center;
+}
+
+.user-menu .dropdown li a {
+  text-decoration: none;
+  color: #8b0000;
+  display: block;
+  font-size: 1rem;
+}
+
+.user-menu .dropdown li a:hover {
+  background-color: #f3e5d8;
+}
+
+/* Menu Section */
+.menu-section {
+  padding: 60px 20px;
+  background-color: #fff0e5;
+  text-align: center;
+}
+
+.menu-section h2 {
+  font-size: 2.5rem;
+  color: #8b0000;
+  margin-bottom: 40px;
+  font-family: 'Playfair Display', serif;
+}
+
+.menu-list {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.menu-item {
+  background-color: white;
+  border-radius: 16px;
+  width: 300px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.menu-item:hover {
+  transform: translateY(-5px);
+}
+
+.menu-item img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.menu-item h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #8b0000;
+  margin: 10px 0;
+}
+
+.menu-item p {
+  font-size: 1rem;
+  color: #4e4e4e;
+  margin-bottom: 15px;
+  min-height: 60px;
+}
+
+/* Quantity Controls */
+.quantity-control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.quantity-control button {
+  background-color: #8b0000;
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.quantity-control button:hover {
+  background-color: #a30000;
+}
+
+.quantity-control input {
+  width: 40px;
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Add to Cart Button */
+.add-to-cart {
+  background-color: #d2691e;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-to-cart:hover {
+  background-color: #b85a1d;
+}
+
+/* Footer */
+footer {
+  background-color: #8b0000;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.95rem;
+  margin-top: 50px;
+}
