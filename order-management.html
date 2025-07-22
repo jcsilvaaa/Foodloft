@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orders Management - FoodLoft Admin</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+      }
+
+      /* Header */
+      .admin-header {
+        background-color: #8b0000;
+        color: white;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .admin-logo h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+
+      .admin-logo span {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-left: 10px;
+      }
+
+      .admin-user {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .admin-user img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .logout-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.3s ease;
+      }
+
+      .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      /* Sidebar */
+      .dashboard-container {
+        display: flex;
+        min-height: calc(100vh - 70px);
+      }
+
+      .sidebar {
+        width: 250px;
+        background-color: white;
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+        padding: 30px 0;
+      }
+
+      .sidebar-menu {
+        list-style: none;
+      }
+
+      .sidebar-menu li {
+        margin-bottom: 5px;
+      }
+
+      .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        padding: 15px 30px;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+      }
+
+      .sidebar-menu a:hover,
+      .sidebar-menu a.active {
+        background-color: #fff0e5;
+        color: #8b0000;
+        border-left-color: #8b0000;
+      }
+
+      .sidebar-menu .icon {
+        margin-right: 12px;
+        font-size: 1.2rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        padding: 30px;
+        background-color: #f8f9fa;
+      }
+
+      .page-title {
+        margin-bottom: 30px;
+      }
+
+      .page-title h2 {
+        font-size: 2.5rem;
+        color: #8b0000;
+        font-family: "Playfair Display", serif;
+        margin-bottom: 5px;
+      }
+
+      .page-title p {
+        color: #666;
+        font-size: 1.1rem;
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .stat-card .icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .stat-card h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .stat-card p {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      /* Filter Card */
+      .filter-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        gap: 20px;
+        align-items: end;
+        flex-wrap: wrap;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .filter-group label {
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+      }
+
+      .filter-group select,
+      .filter-group input {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        min-width: 150px;
+      }
+
+      .action-btn {
+        background: #8b0000;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s ease;
+      }
+
+      .action-btn:hover {
+        background: #a60000;
+      }
+
+      .action-btn.secondary {
+        background: #6c757d;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+
+      .action-btn.secondary:hover {
+        background: #545b62;
+      }
+
+      /* Table Card */
+      .table-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+      }
+
+      .table-header {
+        background: #8b0000;
+        color: white;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .table-header h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 15px 25px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .data-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+      }
+
+      .data-table td {
+        font-size: 0.95rem;
+      }
+
+      .data-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-completed {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status-pending {
+        background: #fff3cd;
+        color: #856404;
+      }
+      .status-processing {
+        background: #cce5ff;
+        color: #004085;
+      }
+      .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .status-delivered {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+
+      /* Order Details Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 80%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #eee;
+      }
+
+      .modal-header h3 {
+        color: #8b0000;
+        font-size: 1.5rem;
+      }
+
+      .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .close:hover {
+        color: #8b0000;
+      }
+
+      .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .order-item:last-child {
+        border-bottom: none;
+      }
+
+      .item-details h4 {
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      .item-details p {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .item-price {
+        font-weight: 600;
+        color: #8b0000;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .dashboard-container {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          order: 2;
+        }
+
+        .main-content {
+          order: 1;
+          padding: 20px;
+        }
+
+        .admin-header {
+          padding: 15px 20px;
+        }
+
+        .filter-card {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-group {
+          margin-bottom: 15px;
+        }
+
+        .data-table {
+          font-size: 0.8rem;
+        }
+
+        .data-table th,
+        .data-table td {
+          padding: 10px 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="admin-logo">
+        <h1>FoodLoft</h1>
+        <span>Admin Dashboard</span>
+      </div>
+      <div class="admin-user">
+        <img
+          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+          alt="Admin"
+        />
+        <span>Admin User</span>
+        <a href="../login.html" class="logout-btn">Logout</a>
+      </div>
+    </header>
+
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <ul class="sidebar-menu">
+          <li>
+            <a href="admin.html"><span class="icon">📊</span>Dashboard</a>
+          </li>
+          <li>
+            <a href="order-management.html" class="active"
+              ><span class="icon">📋</span>Orders</a
+            >
+          </li>
+          <li>
+            <a href="menu-management.html"
+              ><span class="icon">🍜</span>Menu Management</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="page-title">
+          <h2>Orders Management</h2>
+          <p>
+            Manage all customer orders, track their status, and process
+            payments.
+          </p>
+        </div>
+
+        <!-- Order Statistics -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="icon">📋</div>
+            <h3>248</h3>
+            <p>Total Orders Today</p>
+          </div>
+          <div class="stat-card">
+            <div class="icon">⏳</div>
+            <h3>42</h3>
+            <p>Pending Orders</p>
+          </div>
+          <div class="stat-card">
+            <div class="icon">🍳</div>
+            <h3>38</h3>
+            <p>In Kitchen</p>
+          </div>
+          <div class="stat-card">
+            <div class="icon">🚚</div>
+            <h3>24</h3>
+            <p>Out for Delivery</p>
+          </div>
+          <div class="stat-card">
+            <div class="icon">✅</div>
+            <h3>144</h3>
+            <p>Completed Today</p>
+          </div>
+        </div>
+
+        <!-- Order Filters -->
+        <div class="filter-card">
+          <div class="filter-group">
+            <label for="order-status">Status:</label>
+            <select id="order-status">
+              <option value="all">All Orders</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="order-date">Date:</label>
+            <input type="date" id="order-date" />
+          </div>
+          <div class="filter-group">
+            <label for="customer-search">Customer:</label>
+            <input
+              type="text"
+              id="customer-search"
+              placeholder="Search customer..."
+            />
+          </div>
+          <div class="filter-group">
+            <label for="order-id">Order ID:</label>
+            <input type="text" id="order-id" placeholder="FL2025..." />
+          </div>
+          <button class="action-btn">Apply Filters</button>
+          <button class="action-btn secondary">Clear</button>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="table-card">
+          <div class="table-header">
+            <h3>All Orders (248)</h3>
+            <div>
+              <button class="action-btn secondary">Export CSV</button>
+              <button class="action-btn">Print Orders</button>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Order Time</th>
+                <th>Delivery Address</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#FL2025015</td>
+                <td>Maria Santos</td>
+                <td>3 items</td>
+                <td>₱1,250</td>
+                <td>
+                  <span class="status-badge status-processing">Processing</span>
+                </td>
+                <td>2:30 PM</td>
+                <td>123 Ayala Ave, Makati</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="viewOrder('FL2025015')"
+                  >
+                    View
+                  </button>
+                  <button class="action-btn">Update</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#FL2025014</td>
+                <td>John Cruz</td>
+                <td>2 items</td>
+                <td>₱890</td>
+                <td>
+                  <span class="status-badge status-delivered">Delivered</span>
+                </td>
+                <td>1:15 PM</td>
+                <td>456 Ortigas Center, Pasig</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="viewOrder('FL2025014')"
+                  >
+                    View
+                  </button>
+                  <button class="action-btn secondary">Receipt</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#FL2025013</td>
+                <td>Ana Rodriguez</td>
+                <td>4 items</td>
+                <td>₱2,150</td>
+                <td>
+                  <span class="status-badge status-pending">Pending</span>
+                </td>
+                <td>12:45 PM</td>
+                <td>789 BGC, Taguig</td>
+                <td>
+                  <button class="action-btn">Accept</button>
+                  <button class="action-btn secondary">Decline</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#FL2025012</td>
+                <td>David Kim</td>
+                <td>1 item</td>
+                <td>₱750</td>
+                <td>
+                  <span class="status-badge status-completed">Completed</span>
+                </td>
+                <td>11:30 AM</td>
+                <td>321 Quezon City</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="viewOrder('FL2025012')"
+                  >
+                    View
+                  </button>
+                  <button class="action-btn secondary">Receipt</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#FL2025011</td>
+                <td>Lisa Wong</td>
+                <td>2 items</td>
+                <td>₱680</td>
+                <td>
+                  <span class="status-badge status-cancelled">Cancelled</span>
+                </td>
+                <td>10:15 AM</td>
+                <td>654 Manila</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="viewOrder('FL2025011')"
+                  >
+                    View
+                  </button>
+                  <button class="action-btn secondary">Refund</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#FL2025010</td>
+                <td>Michael Chen</td>
+                <td>5 items</td>
+                <td>₱1,890</td>
+                <td>
+                  <span class="status-badge status-processing">In Kitchen</span>
+                </td>
+                <td>3:15 PM</td>
+                <td>987 Alabang, Muntinlupa</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="viewOrder('FL2025010')"
+                  >
+                    View
+                  </button>
+                  <button class="action-btn">Ready</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#FL2025009</td>
+                <td>Sarah Lim</td>
+                <td>3 items</td>
+                <td>₱1,420</td>
+                <td>
+                  <span class="status-badge status-delivered">Delivered</span>
+                </td>
+                <td>9:45 AM</td>
+                <td>234 Marikina City</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="viewOrder('FL2025009')"
+                  >
+                    View
+                  </button>
+                  <button class="action-btn secondary">Receipt</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalOrderId">Order Details</h3>
+          <span class="close">&times;</span>
+        </div>
+        <div id="orderDetails">
+          <!-- Order details will be populated here -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Filter functionality
+      document
+        .querySelectorAll(".filter-card select, .filter-card input")
+        .forEach((element) => {
+          element.addEventListener("change", function () {
+            console.log("Filter changed:", this.id, this.value);
+            // Implement filtering logic here
+          });
+        });
+
+      // Apply filters button
+      document
+        .querySelector(".action-btn")
+        .addEventListener("click", function () {
+          alert(
+            "Filters applied! (This would filter the table in a real implementation)"
+          );
+        });
+
+      // Clear filters button
+      document
+        .querySelector(".action-btn.secondary")
+        .addEventListener("click", function () {
+          document
+            .querySelectorAll(".filter-card select, .filter-card input")
+            .forEach((element) => {
+              element.value = "";
+            });
+          alert("Filters cleared!");
+        });
+
+      // View order function
+      function viewOrder(orderId) {
+        const modal = document.getElementById("orderModal");
+        const modalOrderId = document.getElementById("modalOrderId");
+        const orderDetails = document.getElementById("orderDetails");
+
+        modalOrderId.textContent = `Order ${orderId} Details`;
+
+        // Sample order data (in real app, this would come from API)
+        const orderData = {
+          FL2025015: {
+            customer: "Maria Santos",
+            phone: "+63 912 345 6789",
+            address: "123 Ayala Ave, Makati City",
+            items: [
+              { name: "Kung Pao Chicken", qty: 1, price: 380 },
+              { name: "Yang Chow Fried Rice", qty: 2, price: 520 },
+              { name: "Hot & Sour Soup", qty: 1, price: 180 },
+            ],
+            total: 1250,
+            status: "Processing",
+            orderTime: "2:30 PM",
+            paymentMethod: "Cash on Delivery",
+          },
+          FL2025014: {
+            customer: "John Cruz",
+            phone: "+63 923 456 7890",
+            address: "456 Ortigas Center, Pasig City",
+            items: [
+              { name: "Sweet & Sour Pork", qty: 1, price: 420 },
+              { name: "Jasmine Tea", qty: 1, price: 120 },
+            ],
+            total: 890,
+            status: "Delivered",
+            orderTime: "1:15 PM",
+            paymentMethod: "GCash",
+          },
+        };
+
+        const order = orderData[orderId] || orderData["FL2025015"];
+
+        orderDetails.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #8b0000; margin-bottom: 10px;">Customer Information</h4>
+                    <p><strong>Name:</strong> ${order.customer}</p>
+                    <p><strong>Phone:</strong> ${order.phone}</p>
+                    <p><strong>Address:</strong> ${order.address}</p>
+                    <p><strong>Order Time:</strong> ${order.orderTime}</p>
+                    <p><strong>Payment:</strong> ${order.paymentMethod}</p>
+                    <p><strong>Status:</strong> <span class="status-badge status-${order.status.toLowerCase()}">${
+          order.status
+        }</span></p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #8b0000; margin-bottom: 10px;">Order Items</h4>
+                    ${order.items
+                      .map(
+                        (item) => `
+                        <div class="order-item">
+                            <div class="item-details">
+                                <h4>${item.name}</h4>
+                                <p>Quantity: ${item.qty}</p>
+                            </div>
+                            <div class="item-price">₱${item.price}</div>
+                        </div>
+                    `
+                      )
+                      .join("")}
+                </div>
+                
+                <div style="text-align: right; padding-top: 15px; border-top: 2px solid #eee;">
+                    <h3 style="color: #8b0000;">Total: ₱${order.total}</h3>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="action-btn" style="margin-right: 10px;">Update Status</button>
+                    <button class="action-btn secondary">Print Receipt</button>
+                </div>
+            `;
+
+        modal.style.display = "block";
+      }
+
+      // Modal close functionality
+      document.querySelector(".close").addEventListener("click", function () {
+        document.getElementById("orderModal").style.display = "none";
+      });
+
+      window.addEventListener("click", function (event) {
+        const modal = document.getElementById("orderModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      });
+
+      // Action buttons in table
+      document.querySelectorAll(".data-table .action-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          if (!this.onclick && this.textContent !== "View") {
+            const action = this.textContent;
+            const row = this.closest("tr");
+            const orderId = row.querySelector("td:first-child").textContent;
+            alert(`${action} action for order ${orderId}`);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Management - FoodLoft Admin</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+      }
+
+      /* Header */
+      .admin-header {
+        background-color: #8b0000;
+        color: white;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .admin-logo h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+
+      .admin-logo span {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-left: 10px;
+      }
+
+      .admin-user {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .admin-user img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .logout-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.3s ease;
+      }
+
+      .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      /* Sidebar */
+      .dashboard-container {
+        display: flex;
+        min-height: calc(100vh - 70px);
+      }
+
+      .sidebar {
+        width: 250px;
+        background-color: white;
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+        padding: 30px 0;
+      }
+
+      .sidebar-menu {
+        list-style: none;
+      }
+
+      .sidebar-menu li {
+        margin-bottom: 5px;
+      }
+
+      .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        padding: 15px 30px;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+      }
+
+      .sidebar-menu a:hover,
+      .sidebar-menu a.active {
+        background-color: #fff0e5;
+        color: #8b0000;
+        border-left-color: #8b0000;
+      }
+
+      .sidebar-menu .icon {
+        margin-right: 12px;
+        font-size: 1.2rem;
+      }
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        padding: 30px;
+        background-color: #f8f9fa;
+      }
+
+      .page-title {
+        margin-bottom: 30px;
+      }
+
+      .page-title h2 {
+        font-size: 2.5rem;
+        color: #8b0000;
+        font-family: "Playfair Display", serif;
+        margin-bottom: 5px;
+      }
+
+      .page-title p {
+        color: #666;
+        font-size: 1.1rem;
+      }
+
+      /* Quick Actions */
+      .quick-actions {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .quick-actions h3 {
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.4rem;
+      }
+
+      .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .quick-action-btn {
+        background: linear-gradient(135deg, #8b0000 0%, #a60000 100%);
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .quick-action-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .stat-card .icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .stat-card h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .stat-card p {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      /* Filter Card */
+      .filter-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        gap: 20px;
+        align-items: end;
+        flex-wrap: wrap;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .filter-group label {
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+      }
+
+      .filter-group select,
+      .filter-group input {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        min-width: 150px;
+      }
+
+      .action-btn {
+        background: #8b0000;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s ease;
+      }
+
+      .action-btn:hover {
+        background: #a60000;
+      }
+
+      .action-btn.secondary {
+        background: #6c757d;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+
+      .action-btn.secondary:hover {
+        background: #545b62;
+      }
+
+      .action-btn.success {
+        background: #28a745;
+      }
+
+      .action-btn.success:hover {
+        background: #218838;
+      }
+
+      .action-btn.danger {
+        background: #dc3545;
+      }
+
+      .action-btn.danger:hover {
+        background: #c82333;
+      }
+
+      /* Table Card */
+      .table-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+      }
+
+      .table-header {
+        background: #8b0000;
+        color: white;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .table-header h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 15px 25px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .data-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+      }
+
+      .data-table td {
+        font-size: 0.95rem;
+      }
+
+      .data-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .dish-thumb {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+
+      .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-available {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status-out-of-stock {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .status-discontinued {
+        background: #e2e3e5;
+        color: #383d41;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background-color: white;
+        margin: 3% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #eee;
+      }
+
+      .modal-header h3 {
+        color: #8b0000;
+        font-size: 1.5rem;
+      }
+
+      .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .close:hover {
+        color: #8b0000;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .form-group input[type="file"] {
+        padding: 8px;
+      }
+
+      .price-input {
+        position: relative;
+      }
+
+      .price-input::before {
+        content: "₱";
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        font-weight: 600;
+      }
+
+      .price-input input {
+        padding-left: 25px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .dashboard-container {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          order: 2;
+        }
+
+        .main-content {
+          order: 1;
+          padding: 20px;
+        }
+
+        .admin-header {
+          padding: 15px 20px;
+        }
+
+        .filter-card {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-group {
+          margin-bottom: 15px;
+        }
+
+        .data-table {
+          font-size: 0.8rem;
+        }
+
+        .data-table th,
+        .data-table td {
+          padding: 10px 15px;
+        }
+
+        .dish-thumb {
+          width: 40px;
+          height: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="admin-logo">
+        <h1>FoodLoft</h1>
+        <span>Admin Dashboard</span>
+      </div>
+      <div class="admin-user">
+        <img
+          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+          alt="Admin"
+        />
+        <span>Admin User</span>
+        <a href="../login.html" class="logout-btn">Logout</a>
+      </div>
+    </header>
+
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <ul class="sidebar-menu">
+          <li>
+            <a href="admin.html"
+              ><span class="icon">📊</span>Dashboard</a
+            >
+          </li>
+          <li>
+            <a href="order-management.html"
+              ><span class="icon">📋</span>Orders</a
+            >
+          </li>
+          <li>
+            <a href="menu-management.html" class="active"
+              ><span class="icon">🍜</span>Menu Management</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="page-title">
+          <h2>Menu Management</h2>
+          <p>
+            Add, edit, and organize your restaurant menu items and categories.
+          </p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <h3>Quick Actions</h3>
+          <div class="actions-grid">
+            <button class="quick-action-btn" onclick="openAddDishModal()">
+              <span>➕</span>Add New Dish
+            </button>
+            <button class="quick-action-btn" onclick="manageCategories()">
+              <span>📁</span>Manage Categories
+            </button>
+            <button class="quick-action-btn" onclick="bulkUpdatePrices()">
+              <span>🏷️</span>Update Prices
+            </button>
+            <button class="quick-action-btn" onclick="importMenu()">
+              <span>📄</span>Import Menu
+            </button>
+          </div>
+        </div>
+
+        <!-- Menu Categories Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="icon">🌶️</div>
+            <h3>32</h3>
+            <p>Sichuan Dishes</p>
+          </div>
+          <div class="stat-card">
+            <div class="icon">🥟</div>
+            <h3>28</h3>
+            <p>Cantonese Dishes</p>
+          </div>
+          <div class="stat-card">
+            <div class="icon">🦆</div>
+            <h3>18</h3>
+            <p>Beijing Dishes</p>
+          </div>
+          <div class="stat-card">
+            <div class="icon">🍜</div>
+            <h3>22</h3>
+            <p>Shanghai Dishes</p>
+          </div>
+          <div class="stat-card">
+            <div class="icon">🥢</div>
+            <h3>14</h3>
+            <p>Fujian Dishes</p>
+          </div>
+        </div>
+
+        <!-- Menu Filters -->
+        <div class="filter-card">
+          <div class="filter-group">
+            <label for="category-filter">Category:</label>
+            <select id="category-filter">
+              <option value="all">All Categories</option>
+              <option value="sichuan">Sichuan</option>
+              <option value="cantonese">Cantonese</option>
+              <option value="beijing">Beijing</option>
+              <option value="shanghai">Shanghai</option>
+              <option value="fujian">Fujian</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="status-filter">Status:</label>
+            <select id="status-filter">
+              <option value="all">All Status</option>
+              <option value="available">Available</option>
+              <option value="out-of-stock">Out of Stock</option>
+              <option value="discontinued">Discontinued</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="price-range">Price Range:</label>
+            <select id="price-range">
+              <option value="all">All Prices</option>
+              <option value="0-300">₱0 - ₱300</option>
+              <option value="300-600">₱300 - ₱600</option>
+              <option value="600-1000">₱600 - ₱1,000</option>
+              <option value="1000+">₱1,000+</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="search-dish">Search Dish:</label>
+            <input
+              type="text"
+              id="search-dish"
+              placeholder="Enter dish name..."
+            />
+          </div>
+          <button class="action-btn">Apply Filters</button>
+          <button class="action-btn secondary">Clear</button>
+        </div>
+
+        <!-- Menu Items Table -->
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Menu Items (114 total)</h3>
+            <div>
+              <button class="action-btn secondary">Export Menu</button>
+              <button class="action-btn" onclick="openAddDishModal()">
+                Add New Dish
+              </button>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Dish Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Orders (Today)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <img
+                    src="https://images.unsplash.com/photo-1563379091339-03246963d7d9?w=60&h=60&fit=crop"
+                    class="dish-thumb"
+                    alt="Kung Pao Chicken"
+                  />
+                </td>
+                <td>
+                  <strong>Kung Pao Chicken</strong><br />
+                  <small style="color: #666"
+                    >Spicy Sichuan classic with peanuts</small
+                  >
+                </td>
+                <td>Sichuan</td>
+                <td>₱380</td>
+                <td>
+                  <span class="status-badge status-available">Available</span>
+                </td>
+                <td>24</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="editDish('kung-pao-chicken')"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="action-btn danger"
+                    onclick="toggleStatus('kung-pao-chicken')"
+                  >
+                    Disable
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=60&h=60&fit=crop"
+                    class="dish-thumb"
+                    alt="Peking Duck"
+                  />
+                </td>
+                <td>
+                  <strong>Peking Duck (Half)</strong><br />
+                  <small style="color: #666"
+                    >Crispy skin duck with pancakes</small
+                  >
+                </td>
+                <td>Beijing</td>
+                <td>₱850</td>
+                <td>
+                  <span class="status-badge status-available">Available</span>
+                </td>
+                <td>12</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="editDish('peking-duck')"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="action-btn danger"
+                    onclick="toggleStatus('peking-duck')"
+                  >
+                    Disable
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    src="https://images.unsplash.com/photo-1563245372-f21724e3856d?w=60&h=60&fit=crop"
+                    class="dish-thumb"
+                    alt="Dim Sum Platter"
+                  />
+                </td>
+                <td>
+                  <strong>Dim Sum Platter (6 pcs)</strong><br />
+                  <small style="color: #666">Assorted steamed dumplings</small>
+                </td>
+                <td>Cantonese</td>
+                <td>₱480</td>
+                <td>
+                  <span class="status-badge status-out-of-stock"
+                    >Out of Stock</span
+                  >
+                </td>
+                <td>0</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="editDish('dim-sum')"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="action-btn success"
+                    onclick="toggleStatus('dim-sum')"
+                  >
+                    Restock
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    src="https://images.unsplash.com/photo-1526318896980-cf78c088247c?w=60&h=60&fit=crop"
+                    class="dish-thumb"
+                    alt="Mapo Tofu"
+                  />
+                </td>
+                <td>
+                  <strong>Mapo Tofu</strong><br />
+                  <small style="color: #666">Spicy Sichuan tofu in sauce</small>
+                </td>
+                <td>Sichuan</td>
+                <td>₱320</td>
+                <td>
+                  <span class="status-badge status-available">Available</span>
+                </td>
+                <td>18</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="editDish('mapo-tofu')"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="action-btn danger"
+                    onclick="toggleStatus('mapo-tofu')"
+                  >
+                    Disable
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    src="https://images.unsplash.com/photo-1555126634-323283e090fa?w=60&h=60&fit=crop"
+                    class="dish-thumb"
+                    alt="Sweet and Sour Pork"
+                  />
+                </td>
+                <td>
+                  <strong>Sweet & Sour Pork</strong><br />
+                  <small style="color: #666"
+                    >Cantonese style with pineapple</small
+                  >
+                </td>
+                <td>Cantonese</td>
+                <td>₱420</td>
+                <td>
+                  <span class="status-badge status-available">Available</span>
+                </td>
+                <td>15</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="editDish('sweet-sour-pork')"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="action-btn danger"
+                    onclick="toggleStatus('sweet-sour-pork')"
+                  >
+                    Disable
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    src="https://images.unsplash.com/photo-1551782450-17144efb9c50?w=60&h=60&fit=crop"
+                    class="dish-thumb"
+                    alt="Yang Chow Fried Rice"
+                  />
+                </td>
+                <td>
+                  <strong>Yang Chow Fried Rice</strong><br />
+                  <small style="color: #666"
+                    >Traditional Cantonese fried rice</small
+                  >
+                </td>
+                <td>Cantonese</td>
+                <td>₱260</td>
+                <td>
+                  <span class="status-badge status-available">Available</span>
+                </td>
+                <td>32</td>
+                <td>
+                  <button
+                    class="action-btn secondary"
+                    onclick="editDish('yang-chow-rice')"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="action-btn danger"
+                    onclick="toggleStatus('yang-chow-rice')"
+                  >
+                    Disable
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <!-- Add/Edit Dish Modal -->
+    <div id="dishModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Add New Dish</h3>
+          <span class="close">&times;</span>
+        </div>
+        <form id="dishForm">
+          <div class="form-group">
+            <label for="dishName">Dish Name</label>
+            <input type="text" id="dishName" name="dishName" required />
+          </div>
+
+          <div class="form-group">
+            <label for="dishDescription">Description</label>
+            <textarea
+              id="dishDescription"
+              name="dishDescription"
+              placeholder="Brief description of the dish..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="dishCategory">Category</label>
+            <select id="dishCategory" name="dishCategory" required>
+              <option value="">Select Category</option>
+              <option value="sichuan">Sichuan</option>
+              <option value="cantonese">Cantonese</option>
+              <option value="beijing">Beijing</option>
+              <option value="shanghai">Shanghai</option>
+              <option value="fujian">Fujian</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dishPrice">Price</label>
+            <div class="price-input">
+              <input
+                type="number"
+                id="dishPrice"
+                name="dishPrice"
+                min="0"
+                step="10"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dishImage">Dish Image</label>
+            <input
+              type="file"
+              id="dishImage"
+              name="dishImage"
+              accept="image/*"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="dishStatus">Status</label>
+            <select id="dishStatus" name="dishStatus" required>
+              <option value="available">Available</option>
+              <option value="out-of-stock">Out of Stock</option>
+              <option value="discontinued">Discontinued</option>
+            </select>
+          </div>
+
+          <div style="text-align: center; margin-top: 30px">
+            <button type="submit" class="action-btn" style="margin-right: 10px">
+              Save Dish
+            </button>
+            <button
+              type="button"
+              class="action-btn secondary"
+              onclick="closeDishModal()"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Modal functionality
+      function openAddDishModal() {
+        document.getElementById("modalTitle").textContent = "Add New Dish";
+        document.getElementById("dishForm").reset();
+        document.getElementById("dishModal").style.display = "block";
+      }
+
+      function editDish(dishId) {
+        document.getElementById("modalTitle").textContent = "Edit Dish";
+        // In a real app, this would populate the form with existing data
+        document.getElementById("dishModal").style.display = "block";
+      }
+
+      function closeDishModal() {
+        document.getElementById("dishModal").style.display = "none";
+      }
+
+      // Close modal when clicking outside
+      window.addEventListener("click", function (event) {
+        const modal = document.getElementById("dishModal");
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      });
+
+      // Close modal with X button
+      document
+        .querySelector(".close")
+        .addEventListener("click", closeDishModal);
+
+      // Form submission
+      document
+        .getElementById("dishForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const dishData = Object.fromEntries(formData);
+
+          console.log("Dish data:", dishData);
+          alert(
+            "Dish saved successfully! (In a real app, this would save to database)"
+          );
+          closeDishModal();
+        });
+
+      // Filter functionality
+      document
+        .querySelectorAll(".filter-card select, .filter-card input")
+        .forEach((element) => {
+          element.addEventListener("change", function () {
+            console.log("Filter changed:", this.id, this.value);
+          });
+        });
+
+      // Apply filters
+      document
+        .querySelector(".filter-card .action-btn")
+        .addEventListener("click", function () {
+          alert(
+            "Filters applied! (This would filter the table in a real implementation)"
+          );
+        });
+
+      // Clear filters
+      document
+        .querySelector(".filter-card .action-btn.secondary")
+        .addEventListener("click", function () {
+          document
+            .querySelectorAll(".filter-card select, .filter-card input")
+            .forEach((element) => {
+              element.value = "";
+            });
+          alert("Filters cleared!");
+        });
+
+      // Toggle dish status
+      function toggleStatus(dishId) {
+        const confirmed = confirm(
+          "Are you sure you want to change the status of this dish?"
+        );
+        if (confirmed) {
+          alert(
+            `Status updated for ${dishId}! (This would update the database in a real app)`
+          );
+          // In a real app, this would make an API call to update the status
+          location.reload(); // Temporary simulation of status change
+        }
+      }
+
+      // Quick action functions
+      function manageCategories() {
+        alert(
+          "Category management would open here! (Add/Edit/Delete categories)"
+        );
+      }
+
+      function bulkUpdatePrices() {
+        alert(
+          "Bulk price update tool would open here! (Update multiple dish prices)"
+        );
+      }
+
+      function importMenu() {
+        alert(
+          "Menu import tool would open here! (Import dishes from CSV/Excel)"
+        );
+      }
+    </script>
+  </body>
+</html>
