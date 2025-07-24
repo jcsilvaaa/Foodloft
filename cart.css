@@ -28,6 +28,17 @@ header {
   letter-spacing: 1px;
 }
 
+.logo-link {
+  text-decoration: none;
+  color: inherit; /* Keeps the same color as the h1 */
+}
+
+.logo-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+
 nav ul {
   list-style: none;
   display: flex;

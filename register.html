@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - TasteCheck</title>
-    <link rel="stylesheet" href="css/register.css">
+    <title>Register - FoodloftPH</title>
+    <link rel="stylesheet" href="register.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -12,13 +12,11 @@
     <!-- Header -->
     <header>
         <div class="logo">
-            <h1>TasteCheck</h1>
+            <h1><a href="Homepage.html" class="logo-link">FoodLoftPH</a></h1>
         </div>
         <nav>
             <ul>
-                <li><a href="homepage.html">Home</a></li>
-                <li><a href="Branches.html">Cafe</a></li>
-                <li><a href="aboutpage.html">About Us</a></li>
+                <li><a href="menu.html">Menu</a></li>
             </ul>
         </nav>
     </header>
@@ -26,9 +24,13 @@
     <!-- Registration Form Section -->
     <section class="register-container">
         <h2>Create an Account</h2>
-        <p>Join our community and share your café experiences!</p>
+        <p>Join our community!</p>
 
         <form id="registerForm" enctype="multipart/form-data">
+
+            <label for="full_name">Full Name:</label>
+            <input type="text" id="full_name" name="full_name" required placeholder="Enter your full name">
+
             <!-- Username Input -->
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required placeholder="Enter your username">
@@ -55,8 +57,8 @@
     </section>
 
     <footer>
-        <p>&copy; 2025 TasteCheck. All Rights Reserved.</p>
-        <a href="login.html">Login</a> | <a href="#">Sign Up</a>
+        <p>&copy; 2025 FoodLoftPH. All Rights Reserved.</p>
+        <a href="login.html">Login</a> 
     </footer>
 
     <script>
@@ -86,6 +88,5 @@
 });
 
     </script>
-
 </body>
 </html>
