@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodLoft - Checkout</title>
+  <link rel="stylesheet" href="Checkout.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <h1>FoodLoft</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="Homepage.html">Home</a></li>
+        <li><a href="menu.html">Menu</a></li>
+        <li><a href="cart.html" class="active">Cart</a></li>
+        <li class="user-menu">
+          <img id="userAvatar" src="user.jpg" alt="User Profile" />
+          <ul class="dropdown" id="user-dropdown">
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Log Out</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="checkout-container">
+    <h1 class="title">Checkout</h1>
+    <div class="checkout-grid">
+      <section class="billing">
+        <h2>Billing Details</h2>
+        <form>
+          <div class="form-row">
+            <input type="text" placeholder="First Name*" required />
+            <input type="text" placeholder="Last Name*" required />
+          </div>
+          <input type="text" placeholder="Company Name (optional)" />
+          <input type="text" placeholder="Country / Region*" required />
+          <input type="text" placeholder="Street Address*" required />
+          <input type="text" placeholder="Town / City*" required />
+          <div class="form-row">
+            <input type="text" placeholder="State*" required />
+            <input type="text" placeholder="ZIP*" required />
+          </div>
+          <input type="tel" placeholder="Phone*" required />
+          <input type="email" placeholder="Email Address*" required />
+    
+
+          <h3>Additional Information</h3>
+          <textarea placeholder="Notes about your order, e.g., special notes for delivery"></textarea>
+        </form>
+      </section>
+
+      <aside class="summary">
+        <h2>Your Order</h2>
+        <ul class="order-list">
+          <li><span>Vegetable Salad x1</span><span>$15.69</span></li>
+          <li><span>Cooked Seafoods x1</span><span>$20.50</span></li>
+          <li class="subtotal"><span>Subtotal</span><span>$36.19</span></li>
+          <li class="total"><span>Total</span><span>$36.19</span></li>
+        </ul>
+
+        <h2>Payment Method</h2>
+        <!-- <form class="payment-methods">
+          <label><input type="radio" name="payment" checked /> Credit Card</label>
+          <label><input type="radio" name="payment" /> Paypal</label>
+          <label><input type="radio" name="payment" /> Google Pay</label>
+          <label><input type="radio" name="payment" /> Apple Pay</label>
+          <label><input type="radio" name="payment" /> Cash on Delivery</label>
+        </form> -->
+        
+        <form class="payment-methods">
+            <label><input type="radio" name="payment" checked /> Credit Card</label>
+            <label><input type="radio" name="payment" /> Paypal</label>
+            <label><input type="radio" name="payment" /> Google Pay</label>
+            <label><input type="radio" name="payment" /> Apple Pay</label>
+            <label><input type="radio" name="payment" /> Cash on Delivery</label>
+          </form>
+
+        <p class="privacy">Your personal data will be used to process your order, support your experience...</p>
+        <button class="place-order">Place Order →</button>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FoodLoft. Made with flavor and tradition.</p>
+    IG: @FoodLoft &nbsp; | &nbsp; FB: FoodLoft
+  </footer>
+
+</body>
+</html>
