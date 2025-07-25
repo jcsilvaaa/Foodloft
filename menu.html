@@ -31,7 +31,7 @@
     <h2>Our Menu</h2>
     <div class="menu-list">
       
-      <div class="menu-item">
+      <div class="menu-item" data-food-id="1">
         <img src="kikiam.jpg" alt="Kikiam">
         <h3>Kikiam</h3>
         <p>A savory Chinese-inspired street food made of seasoned ground meat wrapped in bean curd skin.</p>
@@ -43,7 +43,7 @@
         <button class="add-to-cart">Add to Cart</button>
       </div>
 
-      <div class="menu-item">
+      <div class="menu-item" data-food-id="2">
         <img src="CMB.jpg" alt="Chinese Meatball">
         <h3>Chinese Meatball</h3>
         <p>Juicy and tender meatballs infused with garlic, soy sauce, and Chinese spices, perfect with rice or noodles.</p>
@@ -55,7 +55,7 @@
         <button class="add-to-cart">Add to Cart</button>
       </div>
 
-      <div class="menu-item">
+      <div class="menu-item" data-food-id="3">
         <img src="dumpling.jpg" alt="Dumpling">
         <h3>Dumpling</h3>
         <p>Soft dough filled with minced meat and vegetables, steamed to perfection for that authentic bite.</p>
@@ -87,6 +87,36 @@
         input.value = parseInt(input.value) - 1;
       }
     }
+
+    const userId = 1; // Static user ID — replace with dynamic session user if available
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', () => {
+          const menuItem = button.closest('.menu-item');
+          const foodId = parseInt(menuItem.dataset.foodId);
+          const quantity = parseInt(menuItem.querySelector('input[type="number"]').value);
+
+          fetch('http://localhost:3000/cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: userId,
+              food_id: foodId,
+              quantity: quantity
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            alert(data.message || "✅ Added to cart.");
+          })
+          .catch(err => {
+            console.error('❌ Error:', err);
+            alert("Failed to add to cart.");
+          });
+        });
+      });
+    });
   </script>
 </body>
 </html>
