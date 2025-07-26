@@ -57,6 +57,23 @@
         object-fit: cover;
       }
 
+      .admin-user-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .admin-username {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .admin-role {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+      }
+
       .logout-btn {
         background: rgba(255, 255, 255, 0.2);
         border: 1px solid rgba(255, 255, 255, 0.3);
@@ -352,17 +369,60 @@
         text-transform: uppercase;
       }
 
-      .status-available {
+      .status-1 {
         background: #d4edda;
         color: #155724;
       }
-      .status-out-of-stock {
+      .status-0 {
         background: #f8d7da;
         color: #721c24;
       }
-      .status-discontinued {
-        background: #e2e3e5;
-        color: #383d41;
+
+      /* Loading States */
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #8b0000;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px;
+        text-align: center;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .empty-state .icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
       }
 
       /* Modal Styles */
@@ -461,6 +521,61 @@
         padding-left: 25px;
       }
 
+      /* Special styles for bulk pricing */
+      .bulk-price-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .bulk-price-section h4 {
+        margin-bottom: 15px;
+        color: #8b0000;
+      }
+
+      .bulk-price-options {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+      }
+
+      .bulk-price-options label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: normal;
+      }
+
+      .percentage-input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .percentage-input-group input {
+        width: 100px;
+      }
+
+      .selected-items {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+      }
+
+      .selected-items h4 {
+        margin-bottom: 10px;
+        color: #495057;
+      }
+
+      .selected-count {
+        font-weight: 600;
+        color: #8b0000;
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
         .dashboard-container {
@@ -503,6 +618,21 @@
           width: 40px;
           height: 40px;
         }
+
+        .admin-user {
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+        }
+
+        .admin-user-info {
+          align-items: center;
+          text-align: center;
+        }
+
+        .bulk-price-options {
+          flex-direction: column;
+        }
       }
     </style>
   </head>
@@ -515,11 +645,15 @@
       </div>
       <div class="admin-user">
         <img
+          id="admin-avatar"
           src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
           alt="Admin"
         />
-        <span>Admin User</span>
-        <a href="../login.html" class="logout-btn">Logout</a>
+        <div class="admin-user-info">
+          <span class="admin-username" id="admin-username">Admin User</span>
+          <span class="admin-role" id="admin-role">Administrator</span>
+        </div>
+        <button class="logout-btn" id="logout-btn">Logout</button>
       </div>
     </header>
 
@@ -528,9 +662,7 @@
       <nav class="sidebar">
         <ul class="sidebar-menu">
           <li>
-            <a href="admin.html"
-              ><span class="icon">📊</span>Dashboard</a
-            >
+            <a href="admin.html"><span class="icon">📊</span>Dashboard</a>
           </li>
           <li>
             <a href="order-management.html"
@@ -561,44 +693,17 @@
             <button class="quick-action-btn" onclick="openAddDishModal()">
               <span>➕</span>Add New Dish
             </button>
-            <button class="quick-action-btn" onclick="manageCategories()">
+            <button class="quick-action-btn" onclick="openCategoriesModal()">
               <span>📁</span>Manage Categories
-            </button>
-            <button class="quick-action-btn" onclick="bulkUpdatePrices()">
-              <span>🏷️</span>Update Prices
-            </button>
-            <button class="quick-action-btn" onclick="importMenu()">
-              <span>📄</span>Import Menu
             </button>
           </div>
         </div>
 
         <!-- Menu Categories Stats -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="icon">🌶️</div>
-            <h3>32</h3>
-            <p>Sichuan Dishes</p>
-          </div>
-          <div class="stat-card">
-            <div class="icon">🥟</div>
-            <h3>28</h3>
-            <p>Cantonese Dishes</p>
-          </div>
-          <div class="stat-card">
-            <div class="icon">🦆</div>
-            <h3>18</h3>
-            <p>Beijing Dishes</p>
-          </div>
-          <div class="stat-card">
-            <div class="icon">🍜</div>
-            <h3>22</h3>
-            <p>Shanghai Dishes</p>
-          </div>
-          <div class="stat-card">
-            <div class="icon">🥢</div>
-            <h3>14</h3>
-            <p>Fujian Dishes</p>
+        <div class="stats-grid" id="category-stats">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading statistics...</p>
           </div>
         </div>
 
@@ -607,27 +712,21 @@
           <div class="filter-group">
             <label for="category-filter">Category:</label>
             <select id="category-filter">
-              <option value="all">All Categories</option>
-              <option value="sichuan">Sichuan</option>
-              <option value="cantonese">Cantonese</option>
-              <option value="beijing">Beijing</option>
-              <option value="shanghai">Shanghai</option>
-              <option value="fujian">Fujian</option>
+              <option value="">All Categories</option>
             </select>
           </div>
           <div class="filter-group">
             <label for="status-filter">Status:</label>
             <select id="status-filter">
-              <option value="all">All Status</option>
-              <option value="available">Available</option>
-              <option value="out-of-stock">Out of Stock</option>
-              <option value="discontinued">Discontinued</option>
+              <option value="">All Status</option>
+              <option value="1">Available</option>
+              <option value="0">Unavailable</option>
             </select>
           </div>
           <div class="filter-group">
             <label for="price-range">Price Range:</label>
             <select id="price-range">
-              <option value="all">All Prices</option>
+              <option value="">All Prices</option>
               <option value="0-300">₱0 - ₱300</option>
               <option value="300-600">₱300 - ₱600</option>
               <option value="600-1000">₱600 - ₱1,000</option>
@@ -642,244 +741,33 @@
               placeholder="Enter dish name..."
             />
           </div>
-          <button class="action-btn">Apply Filters</button>
-          <button class="action-btn secondary">Clear</button>
+          <button class="action-btn" onclick="applyFilters()">
+            Apply Filters
+          </button>
+          <button class="action-btn secondary" onclick="clearFilters()">
+            Clear
+          </button>
         </div>
 
         <!-- Menu Items Table -->
         <div class="table-card">
           <div class="table-header">
-            <h3>Menu Items (114 total)</h3>
+            <h3 id="menu-count">Menu Items (0 total)</h3>
             <div>
-              <button class="action-btn secondary">Export Menu</button>
+              <button class="action-btn secondary" onclick="refreshMenu()">
+                Refresh
+              </button>
               <button class="action-btn" onclick="openAddDishModal()">
                 Add New Dish
               </button>
             </div>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Dish Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Orders (Today)</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <img
-                    src="https://images.unsplash.com/photo-1563379091339-03246963d7d9?w=60&h=60&fit=crop"
-                    class="dish-thumb"
-                    alt="Kung Pao Chicken"
-                  />
-                </td>
-                <td>
-                  <strong>Kung Pao Chicken</strong><br />
-                  <small style="color: #666"
-                    >Spicy Sichuan classic with peanuts</small
-                  >
-                </td>
-                <td>Sichuan</td>
-                <td>₱380</td>
-                <td>
-                  <span class="status-badge status-available">Available</span>
-                </td>
-                <td>24</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="editDish('kung-pao-chicken')"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="action-btn danger"
-                    onclick="toggleStatus('kung-pao-chicken')"
-                  >
-                    Disable
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <img
-                    src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=60&h=60&fit=crop"
-                    class="dish-thumb"
-                    alt="Peking Duck"
-                  />
-                </td>
-                <td>
-                  <strong>Peking Duck (Half)</strong><br />
-                  <small style="color: #666"
-                    >Crispy skin duck with pancakes</small
-                  >
-                </td>
-                <td>Beijing</td>
-                <td>₱850</td>
-                <td>
-                  <span class="status-badge status-available">Available</span>
-                </td>
-                <td>12</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="editDish('peking-duck')"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="action-btn danger"
-                    onclick="toggleStatus('peking-duck')"
-                  >
-                    Disable
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <img
-                    src="https://images.unsplash.com/photo-1563245372-f21724e3856d?w=60&h=60&fit=crop"
-                    class="dish-thumb"
-                    alt="Dim Sum Platter"
-                  />
-                </td>
-                <td>
-                  <strong>Dim Sum Platter (6 pcs)</strong><br />
-                  <small style="color: #666">Assorted steamed dumplings</small>
-                </td>
-                <td>Cantonese</td>
-                <td>₱480</td>
-                <td>
-                  <span class="status-badge status-out-of-stock"
-                    >Out of Stock</span
-                  >
-                </td>
-                <td>0</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="editDish('dim-sum')"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="action-btn success"
-                    onclick="toggleStatus('dim-sum')"
-                  >
-                    Restock
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <img
-                    src="https://images.unsplash.com/photo-1526318896980-cf78c088247c?w=60&h=60&fit=crop"
-                    class="dish-thumb"
-                    alt="Mapo Tofu"
-                  />
-                </td>
-                <td>
-                  <strong>Mapo Tofu</strong><br />
-                  <small style="color: #666">Spicy Sichuan tofu in sauce</small>
-                </td>
-                <td>Sichuan</td>
-                <td>₱320</td>
-                <td>
-                  <span class="status-badge status-available">Available</span>
-                </td>
-                <td>18</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="editDish('mapo-tofu')"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="action-btn danger"
-                    onclick="toggleStatus('mapo-tofu')"
-                  >
-                    Disable
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <img
-                    src="https://images.unsplash.com/photo-1555126634-323283e090fa?w=60&h=60&fit=crop"
-                    class="dish-thumb"
-                    alt="Sweet and Sour Pork"
-                  />
-                </td>
-                <td>
-                  <strong>Sweet & Sour Pork</strong><br />
-                  <small style="color: #666"
-                    >Cantonese style with pineapple</small
-                  >
-                </td>
-                <td>Cantonese</td>
-                <td>₱420</td>
-                <td>
-                  <span class="status-badge status-available">Available</span>
-                </td>
-                <td>15</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="editDish('sweet-sour-pork')"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="action-btn danger"
-                    onclick="toggleStatus('sweet-sour-pork')"
-                  >
-                    Disable
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <img
-                    src="https://images.unsplash.com/photo-1551782450-17144efb9c50?w=60&h=60&fit=crop"
-                    class="dish-thumb"
-                    alt="Yang Chow Fried Rice"
-                  />
-                </td>
-                <td>
-                  <strong>Yang Chow Fried Rice</strong><br />
-                  <small style="color: #666"
-                    >Traditional Cantonese fried rice</small
-                  >
-                </td>
-                <td>Cantonese</td>
-                <td>₱260</td>
-                <td>
-                  <span class="status-badge status-available">Available</span>
-                </td>
-                <td>32</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="editDish('yang-chow-rice')"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="action-btn danger"
-                    onclick="toggleStatus('yang-chow-rice')"
-                  >
-                    Disable
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="menu-table-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading menu items...</p>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -889,32 +777,29 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 id="modalTitle">Add New Dish</h3>
-          <span class="close">&times;</span>
+          <span class="close" onclick="closeDishModal()">&times;</span>
         </div>
-        <form id="dishForm">
+        <form id="dishForm" enctype="multipart/form-data">
+          <input type="hidden" id="dishId" name="dishId" />
+
           <div class="form-group">
             <label for="dishName">Dish Name</label>
-            <input type="text" id="dishName" name="dishName" required />
+            <input type="text" id="dishName" name="name" required />
           </div>
 
           <div class="form-group">
             <label for="dishDescription">Description</label>
             <textarea
               id="dishDescription"
-              name="dishDescription"
+              name="description"
               placeholder="Brief description of the dish..."
             ></textarea>
           </div>
 
           <div class="form-group">
             <label for="dishCategory">Category</label>
-            <select id="dishCategory" name="dishCategory" required>
+            <select id="dishCategory" name="category_id" required>
               <option value="">Select Category</option>
-              <option value="sichuan">Sichuan</option>
-              <option value="cantonese">Cantonese</option>
-              <option value="beijing">Beijing</option>
-              <option value="shanghai">Shanghai</option>
-              <option value="fujian">Fujian</option>
             </select>
           </div>
 
@@ -924,9 +809,9 @@
               <input
                 type="number"
                 id="dishPrice"
-                name="dishPrice"
+                name="price"
                 min="0"
-                step="10"
+                step="0.01"
                 required
               />
             </div>
@@ -934,20 +819,28 @@
 
           <div class="form-group">
             <label for="dishImage">Dish Image</label>
-            <input
-              type="file"
-              id="dishImage"
-              name="dishImage"
-              accept="image/*"
-            />
+            <input type="file" id="dishImage" name="image" accept="image/*" />
+            <div id="current-image" style="margin-top: 10px; display: none">
+              <small>Current image:</small><br />
+              <img
+                id="current-image-preview"
+                src=""
+                alt="Current dish image"
+                style="
+                  max-width: 100px;
+                  height: auto;
+                  border-radius: 4px;
+                  margin-top: 5px;
+                "
+              />
+            </div>
           </div>
 
           <div class="form-group">
             <label for="dishStatus">Status</label>
-            <select id="dishStatus" name="dishStatus" required>
-              <option value="available">Available</option>
-              <option value="out-of-stock">Out of Stock</option>
-              <option value="discontinued">Discontinued</option>
+            <select id="dishStatus" name="is_available" required>
+              <option value="1">Available</option>
+              <option value="0">Unavailable</option>
             </select>
           </div>
 
@@ -967,114 +860,1049 @@
       </div>
     </div>
 
+    <!-- Categories Management Modal -->
+    <div id="categoriesModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Manage Categories</h3>
+          <span class="close" onclick="closeCategoriesModal()">&times;</span>
+        </div>
+        
+        <!-- Add New Category Form -->
+        <div class="form-group">
+          <label for="newCategoryName">Add New Category</label>
+          <div style="display: flex; gap: 10px;">
+            <input 
+              type="text" 
+              id="newCategoryName" 
+              placeholder="Enter category name..."
+              style="flex: 1;"
+            />
+            <button class="action-btn" onclick="addNewCategory()">Add</button>
+          </div>
+        </div>
+
+        <!-- Categories List -->
+        <div style="margin-top: 30px;">
+          <h4 style="margin-bottom: 15px; color: #8b0000;">Existing Categories</h4>
+          <div id="categories-list">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading categories...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Price Update Modal -->
+    <div id="bulkPriceModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Bulk Price Update</h3>
+          <span class="close" onclick="closeBulkPriceModal()">&times;</span>
+        </div>
+
+        <!-- Selection Criteria -->
+        <div class="bulk-price-section">
+          <h4>Select Items to Update</h4>
+          <div class="form-group">
+            <label for="bulk-category">Filter by Category (optional):</label>
+            <select id="bulk-category">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <button class="action-btn secondary" onclick="loadItemsForBulkUpdate()">
+            Load Items
+          </button>
+        </div>
+
+        <!-- Selected Items Display -->
+        <div id="selected-items-display" style="display: none;">
+          <div class="selected-items">
+            <h4>Selected Items</h4>
+            <p><span class="selected-count" id="selected-count">0</span> items selected</p>
+            <div id="selected-items-list" style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+              <!-- Items will be listed here -->
+            </div>
+          </div>
+
+          <!-- Price Update Options -->
+          <div class="bulk-price-section">
+            <h4>Price Update Method</h4>
+            <div class="bulk-price-options">
+              <label>
+                <input type="radio" name="priceMethod" value="percentage" checked />
+                Percentage Change
+              </label>
+              <label>
+                <input type="radio" name="priceMethod" value="fixed" />
+                Fixed Amount Change
+              </label>
+              <label>
+                <input type="radio" name="priceMethod" value="set" />
+                Set New Price
+              </label>
+            </div>
+
+            <div id="percentage-controls" class="percentage-input-group">
+              <label>
+                <input type="radio" name="percentageType" value="increase" checked />
+                Increase by
+              </label>
+              <label>
+                <input type="radio" name="percentageType" value="decrease" />
+                Decrease by
+              </label>
+              <input type="number" id="percentage-value" min="0" step="0.1" placeholder="10" />
+              <span>%</span>
+            </div>
+
+            <div id="fixed-controls" class="percentage-input-group" style="display: none;">
+              <label>
+                <input type="radio" name="fixedType" value="increase" checked />
+                Increase by
+              </label>
+              <label>
+                <input type="radio" name="fixedType" value="decrease" />
+                Decrease by
+              </label>
+              <div class="price-input" style="width: 150px;">
+                <input type="number" id="fixed-value" min="0" step="0.01" placeholder="50.00" />
+              </div>
+            </div>
+
+            <div id="set-controls" class="percentage-input-group" style="display: none;">
+              <span>Set all selected items to:</span>
+              <div class="price-input" style="width: 150px;">
+                <input type="number" id="set-value" min="0" step="0.01" placeholder="299.00" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview and Apply -->
+          <div style="text-align: center; margin-top: 30px;">
+            <button class="action-btn secondary" onclick="previewPriceChanges()" style="margin-right: 10px;">
+              Preview Changes
+            </button>
+            <button class="action-btn" onclick="applyBulkPriceUpdate()" style="margin-right: 10px;">
+              Apply Changes
+            </button>
+            <button class="action-btn secondary" onclick="closeBulkPriceModal()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
-      // Modal functionality
+      let currentMenuItems = [];
+      let currentCategories = [];
+      let currentFilters = {};
+      let isEditMode = false;
+      let selectedItemsForBulkUpdate = [];
+
+      // Authentication check
+      function checkAdminAccess() {
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        if (!isLoggedIn || !user || user.role !== "admin") {
+          window.location.href = "login.html";
+          return false;
+        }
+
+        updateUserInfo(user);
+        return true;
+      }
+
+      function updateUserInfo(user) {
+        const usernameElement = document.getElementById("admin-username");
+        const avatarElement = document.getElementById("admin-avatar");
+
+        if (usernameElement && user.username) {
+          usernameElement.textContent = user.username;
+        }
+
+        if (avatarElement && user.avatar) {
+          avatarElement.src = `http://localhost:3000/uploads/${user.avatar}`;
+          avatarElement.onerror = function () {
+            this.src =
+              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face";
+          };
+        }
+      }
+
+      // Logout function
+      function logout() {
+        if (confirm("Are you sure you want to logout?")) {
+          localStorage.removeItem("user");
+          localStorage.removeItem("isLoggedIn");
+
+          fetch("http://localhost:3000/logout", {
+            method: "POST",
+            credentials: "same-origin",
+          })
+            .then(() => {
+              window.location.href = "login.html";
+            })
+            .catch(() => {
+              window.location.href = "login.html";
+            });
+        }
+      }
+
+      // Fetch categories from backend
+      async function fetchCategories() {
+        try {
+          const response = await fetch(
+            "http://localhost:3000/admin/categories"
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const categories = await response.json();
+          currentCategories = categories;
+          populateCategoryOptions(categories);
+        } catch (error) {
+          console.error("Error fetching categories:", error);
+        }
+      }
+
+      // Populate category dropdowns
+      function populateCategoryOptions(categories) {
+        const filterSelect = document.getElementById("category-filter");
+        const modalSelect = document.getElementById("dishCategory");
+        const bulkSelect = document.getElementById("bulk-category");
+
+        // Clear existing options (except "All Categories" for filter)
+        filterSelect.innerHTML = '<option value="">All Categories</option>';
+        modalSelect.innerHTML = '<option value="">Select Category</option>';
+        bulkSelect.innerHTML = '<option value="">All Categories</option>';
+
+        categories.forEach((category) => {
+          const filterOption = new Option(category.name, category.category_id);
+          const modalOption = new Option(category.name, category.category_id);
+          const bulkOption = new Option(category.name, category.category_id);
+
+          filterSelect.appendChild(filterOption);
+          modalSelect.appendChild(modalOption);
+          bulkSelect.appendChild(bulkOption);
+        });
+      }
+
+      // Fetch menu items from backend
+      async function fetchMenuItems(filters = {}) {
+        try {
+          showMenuLoading();
+
+          const queryParams = new URLSearchParams();
+          if (filters.category_id)
+            queryParams.append("category_id", filters.category_id);
+          if (filters.is_available !== undefined)
+            queryParams.append("is_available", filters.is_available);
+          if (filters.priceRange)
+            queryParams.append("price_range", filters.priceRange);
+          if (filters.search) queryParams.append("search", filters.search);
+
+          const response = await fetch(
+            `http://localhost:3000/admin/menu?${queryParams}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const menuItems = await response.json();
+          currentMenuItems = menuItems;
+          renderMenuItems(menuItems);
+          updateCategoryStats();
+        } catch (error) {
+          console.error("Error fetching menu items:", error);
+          showMenuError("Failed to load menu items. Please try again.");
+        }
+      }
+
+      // Render menu items table
+      function renderMenuItems(menuItems) {
+        const container = document.getElementById("menu-table-container");
+        const menuCount = document.getElementById("menu-count");
+
+        menuCount.textContent = `Menu Items (${menuItems.length} total)`;
+
+        if (menuItems.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">🍽️</div>
+              <h3>No Menu Items Found</h3>
+              <p>No items match the current filters.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Dish Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${menuItems
+                .map(
+                  (item) => `
+                <tr>
+                  <td>
+                    <img
+                      src="${
+                        item.image
+                          ? `http://localhost:3000/uploads/${item.image}`
+                          : "/Kikiam.jpg"
+                      }"
+                      class="dish-thumb"
+                      alt="${item.name}"
+                      onerror="this.src='/Kikiam.jpg'"
+                    />
+                  </td>
+                  <td>
+                    <strong>${item.name}</strong><br />
+                    <small style="color: #666">${
+                      item.description || "No description"
+                    }</small>
+                  </td>
+                  <td>${item.category_name || "Unknown"}</td>
+                  <td>₱${parseFloat(item.price).toFixed(2)}</td>
+                  <td>
+                    <span class="status-badge status-${item.is_available}">
+                      ${item.is_available ? "Available" : "Unavailable"}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="action-btn secondary" onclick="editDish(${
+                      item.food_id
+                    })">Edit</button>
+                    <button class="action-btn ${
+                      item.is_available ? "danger" : "success"
+                    }" 
+                            onclick="toggleAvailability(${item.food_id}, ${
+                    item.is_available
+                  })">
+                      ${item.is_available ? "Disable" : "Enable"}
+                    </button>
+                  </td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        `;
+
+        container.innerHTML = tableHTML;
+      }
+
+      // Update category statistics
+      function updateCategoryStats() {
+        const statsContainer = document.getElementById("category-stats");
+
+        if (currentCategories.length === 0) {
+          statsContainer.innerHTML = `
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading statistics...</p>
+            </div>
+          `;
+          return;
+        }
+
+        const categoryStats = currentCategories.map((category) => {
+          const count = currentMenuItems.filter(
+            (item) => item.category_id === category.category_id
+          ).length;
+          return {
+            ...category,
+            count,
+          };
+        });
+
+        const statsHTML = categoryStats
+          .map(
+            (category) => `
+          <div class="stat-card">
+            <div class="icon">${getCategoryIcon(category.name)}</div>
+            <h3>${category.count}</h3>
+            <p>${category.name} Dishes</p>
+          </div>
+        `
+          )
+          .join("");
+
+        statsContainer.innerHTML = statsHTML;
+      }
+
+      // Get category icon based on name
+      function getCategoryIcon(categoryName) {
+        const icons = {
+          sichuan: "🌶️",
+          cantonese: "🥟",
+          beijing: "🦆",
+          shanghai: "🍜",
+          fujian: "🥢",
+          appetizers: "🥗",
+          "main course": "🍽️",
+          desserts: "🍰",
+          beverages: "🥤",
+        };
+
+        const lowerName = categoryName.toLowerCase();
+        return icons[lowerName] || "🍽️";
+      }
+
+      // Modal functions
       function openAddDishModal() {
+        isEditMode = false;
         document.getElementById("modalTitle").textContent = "Add New Dish";
         document.getElementById("dishForm").reset();
+        document.getElementById("dishId").value = "";
+        document.getElementById("current-image").style.display = "none";
         document.getElementById("dishModal").style.display = "block";
       }
 
-      function editDish(dishId) {
-        document.getElementById("modalTitle").textContent = "Edit Dish";
-        // In a real app, this would populate the form with existing data
-        document.getElementById("dishModal").style.display = "block";
+      async function editDish(foodId) {
+        try {
+          isEditMode = true;
+          const response = await fetch(
+            `http://localhost:3000/admin/menu/${foodId}`
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const dish = await response.json();
+
+          document.getElementById("modalTitle").textContent = "Edit Dish";
+          document.getElementById("dishId").value = dish.food_id;
+          document.getElementById("dishName").value = dish.name;
+          document.getElementById("dishDescription").value =
+            dish.description || "";
+          document.getElementById("dishCategory").value = dish.category_id;
+          document.getElementById("dishPrice").value = dish.price;
+          document.getElementById("dishStatus").value = dish.is_available;
+
+          // Show current image if exists
+          if (dish.image) {
+            document.getElementById("current-image").style.display = "block";
+            document.getElementById(
+              "current-image-preview"
+            ).src = `http://localhost:3000/uploads/${dish.image}`;
+          } else {
+            document.getElementById("current-image").style.display = "none";
+          }
+
+          document.getElementById("dishModal").style.display = "block";
+        } catch (error) {
+          console.error("Error fetching dish details:", error);
+          alert("Failed to load dish details. Please try again.");
+        }
       }
 
       function closeDishModal() {
         document.getElementById("dishModal").style.display = "none";
+        isEditMode = false;
       }
 
-      // Close modal when clicking outside
-      window.addEventListener("click", function (event) {
-        const modal = document.getElementById("dishModal");
-        if (event.target === modal) {
-          modal.style.display = "none";
+      // Categories Modal Functions
+      function openCategoriesModal() {
+        document.getElementById("categoriesModal").style.display = "block";
+        loadCategoriesList();
+      }
+
+      function closeCategoriesModal() {
+        document.getElementById("categoriesModal").style.display = "none";
+      }
+
+      async function loadCategoriesList() {
+        const container = document.getElementById("categories-list");
+        
+        try {
+          container.innerHTML = `
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading categories...</p>
+            </div>
+          `;
+
+          await fetchCategories(); // Refresh categories data
+
+          if (currentCategories.length === 0) {
+            container.innerHTML = `
+              <div class="empty-state">
+                <div class="icon">📁</div>
+                <h4>No Categories Found</h4>
+                <p>Add your first category using the form above.</p>
+              </div>
+            `;
+            return;
+          }
+
+          const categoriesHTML = currentCategories
+            .map(
+              (category) => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 10px;">
+                <div>
+                  <strong>${category.name}</strong>
+                  <br />
+                  <small style="color: #666;">Category ID: ${category.category_id}</small>
+                </div>
+                <div>
+                  <button class="action-btn secondary" onclick="editCategory(${category.category_id}, '${category.name}')" style="margin-right: 10px;">
+                    Edit
+                  </button>
+                  <button class="action-btn danger" onclick="deleteCategory(${category.category_id}, '${category.name}')">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            `
+            )
+            .join("");
+
+          container.innerHTML = categoriesHTML;
+        } catch (error) {
+          container.innerHTML = `
+            <div class="error-message">
+              <h4>Error</h4>
+              <p>Failed to load categories. Please try again.</p>
+            </div>
+          `;
         }
-      });
+      }
 
-      // Close modal with X button
-      document
-        .querySelector(".close")
-        .addEventListener("click", closeDishModal);
+      async function addNewCategory() {
+        const nameInput = document.getElementById("newCategoryName");
+        const name = nameInput.value.trim();
 
-      // Form submission
-      document
-        .getElementById("dishForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          const formData = new FormData(this);
-          const dishData = Object.fromEntries(formData);
+        if (!name) {
+          alert("Please enter a category name.");
+          return;
+        }
 
-          console.log("Dish data:", dishData);
-          alert(
-            "Dish saved successfully! (In a real app, this would save to database)"
-          );
-          closeDishModal();
-        });
+        try {
+          const response = await fetch("http://localhost:3000/admin/categories", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name }),
+          });
 
-      // Filter functionality
-      document
-        .querySelectorAll(".filter-card select, .filter-card input")
-        .forEach((element) => {
-          element.addEventListener("change", function () {
-            console.log("Filter changed:", this.id, this.value);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          alert("Category added successfully!");
+          nameInput.value = "";
+          loadCategoriesList();
+          fetchCategories(); // Refresh dropdown options
+        } catch (error) {
+          console.error("Error adding category:", error);
+          alert("Failed to add category. Please try again.");
+        }
+      }
+
+      async function editCategory(categoryId, currentName) {
+        const newName = prompt("Enter new category name:", currentName);
+        
+        if (!newName || newName.trim() === "") {
+          return;
+        }
+
+        if (newName.trim() === currentName) {
+          return; // No change
+        }
+
+        try {
+          const response = await fetch(`http://localhost:3000/admin/categories/${categoryId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: newName.trim() }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          alert("Category updated successfully!");
+          loadCategoriesList();
+          fetchCategories(); // Refresh dropdown options
+        } catch (error) {
+          console.error("Error updating category:", error);
+          alert("Failed to update category. Please try again.");
+        }
+      }
+
+      async function deleteCategory(categoryId, categoryName) {
+        if (!confirm(`Are you sure you want to delete the category "${categoryName}"?\n\nThis action cannot be undone. Make sure no menu items are using this category.`)) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`http://localhost:3000/admin/categories/${categoryId}`, {
+            method: "DELETE",
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }
+
+          alert("Category deleted successfully!");
+          loadCategoriesList();
+          fetchCategories(); // Refresh dropdown options
+        } catch (error) {
+          console.error("Error deleting category:", error);
+          alert(`Failed to delete category: ${error.message}`);
+        }
+      }
+
+      function setupPriceMethodHandlers() {
+        const methodRadios = document.querySelectorAll('input[name="priceMethod"]');
+        
+        methodRadios.forEach(radio => {
+          radio.addEventListener('change', function() {
+            // Hide all controls
+            document.getElementById('percentage-controls').style.display = 'none';
+            document.getElementById('fixed-controls').style.display = 'none';
+            document.getElementById('set-controls').style.display = 'none';
+            
+            // Show relevant controls
+            if (this.value === 'percentage') {
+              document.getElementById('percentage-controls').style.display = 'flex';
+            } else if (this.value === 'fixed') {
+              document.getElementById('fixed-controls').style.display = 'flex';
+            } else if (this.value === 'set') {
+              document.getElementById('set-controls').style.display = 'flex';
+            }
           });
         });
+      }
 
-      // Apply filters
-      document
-        .querySelector(".filter-card .action-btn")
-        .addEventListener("click", function () {
-          alert(
-            "Filters applied! (This would filter the table in a real implementation)"
-          );
-        });
+      async function loadItemsForBulkUpdate() {
+        const categoryFilter = document.getElementById("bulk-category").value;
+        
+        try {
+          // Use current menu items or fetch with category filter
+          let itemsToShow = currentMenuItems;
+          
+          if (categoryFilter) {
+            itemsToShow = currentMenuItems.filter(item => 
+              item.category_id == categoryFilter
+            );
+          }
 
-      // Clear filters
-      document
-        .querySelector(".filter-card .action-btn.secondary")
-        .addEventListener("click", function () {
-          document
-            .querySelectorAll(".filter-card select, .filter-card input")
-            .forEach((element) => {
-              element.value = "";
-            });
-          alert("Filters cleared!");
-        });
+          if (itemsToShow.length === 0) {
+            alert("No items found for the selected criteria.");
+            return;
+          }
 
-      // Toggle dish status
-      function toggleStatus(dishId) {
-        const confirmed = confirm(
-          "Are you sure you want to change the status of this dish?"
-        );
-        if (confirmed) {
-          alert(
-            `Status updated for ${dishId}! (This would update the database in a real app)`
-          );
-          // In a real app, this would make an API call to update the status
-          location.reload(); // Temporary simulation of status change
+          selectedItemsForBulkUpdate = [...itemsToShow];
+          displaySelectedItems();
+          document.getElementById("selected-items-display").style.display = "block";
+        } catch (error) {
+          console.error("Error loading items for bulk update:", error);
+          alert("Failed to load items. Please try again.");
         }
       }
 
-      // Quick action functions
-      function manageCategories() {
-        alert(
-          "Category management would open here! (Add/Edit/Delete categories)"
-        );
+      function displaySelectedItems() {
+        const countElement = document.getElementById("selected-count");
+        const listElement = document.getElementById("selected-items-list");
+        
+        countElement.textContent = selectedItemsForBulkUpdate.length;
+        
+        const itemsHTML = selectedItemsForBulkUpdate
+          .map(item => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
+              <div>
+                <strong>${item.name}</strong> - ₱${parseFloat(item.price).toFixed(2)}
+                <br />
+                <small style="color: #666;">${item.category_name || 'Unknown Category'}</small>
+              </div>
+              <button class="action-btn danger" onclick="removeFromBulkUpdate(${item.food_id})" style="padding: 4px 8px; font-size: 0.8rem;">
+                Remove
+              </button>
+            </div>
+          `)
+          .join("");
+          
+        listElement.innerHTML = itemsHTML;
       }
 
-      function bulkUpdatePrices() {
-        alert(
-          "Bulk price update tool would open here! (Update multiple dish prices)"
+      function removeFromBulkUpdate(foodId) {
+        selectedItemsForBulkUpdate = selectedItemsForBulkUpdate.filter(item => 
+          item.food_id !== foodId
         );
+        
+        if (selectedItemsForBulkUpdate.length === 0) {
+          document.getElementById("selected-items-display").style.display = "none";
+        } else {
+          displaySelectedItems();
+        }
       }
 
-      function importMenu() {
-        alert(
-          "Menu import tool would open here! (Import dishes from CSV/Excel)"
-        );
+      function previewPriceChanges() {
+        const changes = calculatePriceChanges();
+        
+        if (!changes) return;
+        
+        let previewText = "Price Change Preview:\n\n";
+        
+        changes.forEach(change => {
+          previewText += `${change.name}\n`;
+          previewText += `  Current: ₱${change.currentPrice.toFixed(2)}\n`;
+          previewText += `  New: ₱${change.newPrice.toFixed(2)}\n`;
+          previewText += `  Change: ${change.newPrice > change.currentPrice ? '+' : ''}₱${(change.newPrice - change.currentPrice).toFixed(2)}\n\n`;
+        });
+        
+        alert(previewText);
       }
+
+      function calculatePriceChanges() {
+        const method = document.querySelector('input[name="priceMethod"]:checked').value;
+        const changes = [];
+        
+        selectedItemsForBulkUpdate.forEach(item => {
+          const currentPrice = parseFloat(item.price);
+          let newPrice = currentPrice;
+          
+          if (method === 'percentage') {
+            const percentageValue = parseFloat(document.getElementById('percentage-value').value || 0);
+            const isIncrease = document.querySelector('input[name="percentageType"]:checked').value === 'increase';
+            
+            if (isIncrease) {
+              newPrice = currentPrice * (1 + percentageValue / 100);
+            } else {
+              newPrice = currentPrice * (1 - percentageValue / 100);
+            }
+          } else if (method === 'fixed') {
+            const fixedValue = parseFloat(document.getElementById('fixed-value').value || 0);
+            const isIncrease = document.querySelector('input[name="fixedType"]:checked').value === 'increase';
+            
+            if (isIncrease) {
+              newPrice = currentPrice + fixedValue;
+            } else {
+              newPrice = currentPrice - fixedValue;
+            }
+          } else if (method === 'set') {
+            newPrice = parseFloat(document.getElementById('set-value').value || 0);
+          }
+          
+          // Ensure price doesn't go below 0
+          newPrice = Math.max(0, newPrice);
+          
+          changes.push({
+            food_id: item.food_id,
+            name: item.name,
+            currentPrice,
+            newPrice
+          });
+        });
+        
+        return changes;
+      }
+
+      async function applyBulkPriceUpdate() {
+        const changes = calculatePriceChanges();
+        
+        if (!changes || changes.length === 0) {
+          alert("No items selected or no valid price changes calculated.");
+          return;
+        }
+        
+        // Validate inputs
+        const method = document.querySelector('input[name="priceMethod"]:checked').value;
+        let inputValue = 0;
+        
+        if (method === 'percentage') {
+          inputValue = parseFloat(document.getElementById('percentage-value').value || 0);
+        } else if (method === 'fixed') {
+          inputValue = parseFloat(document.getElementById('fixed-value').value || 0);
+        } else if (method === 'set') {
+          inputValue = parseFloat(document.getElementById('set-value').value || 0);
+        }
+        
+        if (inputValue <= 0 && method !== 'set') {
+          alert("Please enter a valid value for the price update.");
+          return;
+        }
+        
+        if (method === 'set' && inputValue < 0) {
+          alert("Price cannot be negative.");
+          return;
+        }
+        
+        if (!confirm(`Are you sure you want to update prices for ${changes.length} items?`)) {
+          return;
+        }
+        
+        try {
+          // Prepare data for bulk update
+          const bulkUpdateData = {
+            items: changes.map(change => ({
+              food_id: change.food_id,
+              price: change.newPrice
+            }))
+          };
+
+          const response = await fetch("http://localhost:3000/admin/menu/bulk-price-update", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(bulkUpdateData),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          alert(`Successfully updated prices for ${result.updated_count} items!`);
+          closeBulkPriceModal();
+          fetchMenuItems(currentFilters); // Refresh the menu items display
+        } catch (error) {
+          console.error("Error applying bulk price update:", error);
+          alert(`Failed to update prices: ${error.message}`);
+        }
+      }
+
+      // Form submission
+      async function submitDishForm(event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const submitButton = event.target.querySelector(
+          'button[type="submit"]'
+        );
+        const originalText = submitButton.textContent;
+
+        try {
+          submitButton.textContent = "Saving...";
+          submitButton.disabled = true;
+
+          const url = isEditMode
+            ? `http://localhost:3000/admin/menu/${formData.get("dishId")}`
+            : "http://localhost:3000/admin/menu";
+
+          const method = isEditMode ? "PUT" : "POST";
+
+          const response = await fetch(url, {
+            method: method,
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          alert(
+            isEditMode
+              ? "Dish updated successfully!"
+              : "Dish added successfully!"
+          );
+          closeDishModal();
+          fetchMenuItems(currentFilters);
+        } catch (error) {
+          console.error("Error saving dish:", error);
+          alert("Failed to save dish. Please try again.");
+        } finally {
+          submitButton.textContent = originalText;
+          submitButton.disabled = false;
+        }
+      }
+
+      // Toggle dish availability
+      async function toggleAvailability(foodId, currentStatus) {
+        const newStatus = currentStatus ? 0 : 1;
+        const action = newStatus ? "enable" : "disable";
+
+        if (!confirm(`Are you sure you want to ${action} this dish?`)) {
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/admin/menu/${foodId}/availability`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ is_available: newStatus }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          alert(`Dish ${action}d successfully!`);
+          fetchMenuItems(currentFilters);
+        } catch (error) {
+          console.error("Error updating dish availability:", error);
+          alert("Failed to update dish status. Please try again.");
+        }
+      }
+
+      // Filter functions
+      function applyFilters() {
+        const filters = {
+          category_id: document.getElementById("category-filter").value,
+          is_available: document.getElementById("status-filter").value,
+          priceRange: document.getElementById("price-range").value,
+          search: document.getElementById("search-dish").value.trim(),
+        };
+
+        // Remove empty values
+        Object.keys(filters).forEach((key) => {
+          if (filters[key] === "" || filters[key] === undefined) {
+            delete filters[key];
+          }
+        });
+
+        currentFilters = filters;
+        fetchMenuItems(filters);
+      }
+
+      function clearFilters() {
+        document.getElementById("category-filter").value = "";
+        document.getElementById("status-filter").value = "";
+        document.getElementById("price-range").value = "";
+        document.getElementById("search-dish").value = "";
+
+        currentFilters = {};
+        fetchMenuItems();
+      }
+
+      function refreshMenu() {
+        fetchMenuItems(currentFilters);
+      }
+
+      // Utility functions
+      function showMenuLoading() {
+        const container = document.getElementById("menu-table-container");
+        container.innerHTML = `
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading menu items...</p>
+          </div>
+        `;
+      }
+
+      function showMenuError(message) {
+        const container = document.getElementById("menu-table-container");
+        container.innerHTML = `
+          <div class="error-message">
+            <h4>Error</h4>
+            <p>${message}</p>
+            <button class="action-btn" onclick="fetchMenuItems(currentFilters)" style="margin-top: 10px;">Try Again</button>
+          </div>
+        `;
+      }
+
+      // Event listeners
+      document.addEventListener("DOMContentLoaded", function () {
+        // Check admin access
+        if (!checkAdminAccess()) return;
+
+        // Set up event listeners
+        document.getElementById("logout-btn").addEventListener("click", logout);
+        document
+          .getElementById("dishForm")
+          .addEventListener("submit", submitDishForm);
+
+        // Close modals when clicking outside
+        window.addEventListener("click", function (event) {
+          const dishModal = document.getElementById("dishModal");
+          const categoriesModal = document.getElementById("categoriesModal");
+          const bulkPriceModal = document.getElementById("bulkPriceModal");
+          
+          if (event.target === dishModal) {
+            closeDishModal();
+          }
+          if (event.target === categoriesModal) {
+            closeCategoriesModal();
+          }
+          if (event.target === bulkPriceModal) {
+            closeBulkPriceModal();
+          }
+        });
+
+        // Handle filter changes
+        document
+          .getElementById("category-filter")
+          .addEventListener("change", function () {
+            if (this.value === "") return; // Don't auto-apply for "All Categories"
+            applyFilters();
+          });
+
+        document
+          .getElementById("status-filter")
+          .addEventListener("change", function () {
+            if (this.value === "") return; // Don't auto-apply for "All Status"
+            applyFilters();
+          });
+
+        // Handle Enter key in search input
+        document
+          .getElementById("search-dish")
+          .addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+              applyFilters();
+            }
+          });
+
+        // Handle Enter key in new category input
+        document
+          .getElementById("newCategoryName")
+          .addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+              addNewCategory();
+            }
+          });
+
+        // Load initial data
+        fetchCategories();
+        fetchMenuItems();
+
+        // Auto-refresh every 60 seconds
+        setInterval(() => {
+          fetchMenuItems(currentFilters);
+        }, 60000);
+      });
+
+      // Prevent back button after logout
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+          checkAdminAccess();
+        }
+      });
     </script>
   </body>
 </html>
