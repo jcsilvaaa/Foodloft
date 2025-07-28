@@ -15,13 +15,11 @@
     <nav>
       <ul>
         <li><a href="menu.html">Menu</a></li>
-        <li><a href="cart.html">Cart</a></li>
+        <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
         <li class="user-menu">
           <img id="userAvatar" src="user.jpg" alt="User Profile" />
           <ul class="dropdown" id="user-dropdown">
-            <li id="profile-link"><a href="User.html">Profile</a></li>
-            <li id="login-link"><a href="login.html">Login</a></li>
-            <li id="logout-link"><a href="#">Log Out</a></li>
+            <li><a href="#" onclick="logout()">Log Out</a></li>
           </ul>
         </li>
       </ul>
@@ -76,32 +74,40 @@
     IG: @FoodLoft &nbsp; | &nbsp; FB: FoodLoft
   </footer>
 
-  <!-- 🔒 Auth Script -->
-  <script>
-    // Simulate login state using localStorage
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  <!-- ✅ Auth & Cart Script -->
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) {
+  alert("Please login first.");
+  window.location.href = "login.html";
+}
 
-    const loginLink = document.getElementById('login-link');
-    const logoutLink = document.getElementById('logout-link');
-    const profileLink = document.getElementById('profile-link');
+document.addEventListener('DOMContentLoaded', () => {
+  // ✅ Update cart count dynamically
+  updateCartCount();
 
-    if (isLoggedIn) {
-      loginLink.style.display = 'none';
-      logoutLink.style.display = 'block';
-      profileLink.style.display = 'block';
-    } else {
-      loginLink.style.display = 'block';
-      logoutLink.style.display = 'none';
-      profileLink.style.display = 'none';
-    }
+  // ✅ Update avatar if user uploaded one
+  const userAvatar = document.getElementById('userAvatar');
+  if (user && user.avatar) {
+    userAvatar.src = `http://localhost:3000/uploads/${user.avatar}`;
+  }
+});
 
-    // Handle logout
-    logoutLink.addEventListener('click', function (e) {
-      e.preventDefault();
-      localStorage.removeItem('isLoggedIn');
-      alert("You have been logged out.");
-      location.reload(); // refresh the page
-    });
-  </script>
+function updateCartCount() {
+  fetch(`http://localhost:3000/cart/${user.user_id}`)
+    .then(res => res.json())
+    .then(cart => {
+      document.getElementById('cart-count').textContent = cart.length;
+    })
+    .catch(err => console.error('Error updating cart count:', err));
+}
+
+function logout() {
+  localStorage.removeItem("user");
+  localStorage.removeItem("isLoggedIn");
+  alert("You have been logged out.");
+  window.location.href = "login.html";
+}
+</script>
 </body>
 </html>

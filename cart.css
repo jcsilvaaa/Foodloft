@@ -30,14 +30,8 @@ header {
 
 .logo-link {
   text-decoration: none;
-  color: inherit; /* Keeps the same color as the h1 */
-}
-
-.logo-link:hover {
-  text-decoration: none;
   color: inherit;
 }
-
 
 nav ul {
   list-style: none;
@@ -106,99 +100,64 @@ nav ul li a {
 
 /* Cart Section */
 .cart-section {
-  padding: 60px 20px;
-  background-color: #fff0e5;
+  padding: 50px 20px;
   text-align: center;
 }
 
 .cart-section h2 {
   font-size: 2.5rem;
   color: #8b0000;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   font-family: 'Playfair Display', serif;
 }
 
-.cart-list {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
+/* Cart Table */
+#cart-table {
+  width: 90%;
   max-width: 1000px;
   margin: 0 auto;
-}
-
-/* Cart Item */
-.cart-item {
+  border-collapse: collapse;
   background-color: white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.cart-item img {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-.item-details {
-  flex: 1;
-  text-align: left;
-}
-
-.item-details h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
-  color: #8b0000;
-  margin-bottom: 5px;
-}
-
-.item-details p {
-  font-size: 1rem;
-  color: #555;
-}
-
-/* Quantity Controls */
-.quantity-control {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.quantity-control button {
-  background-color: #8b0000;
-  color: white;
-  border: none;
-  font-size: 1.2rem;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.quantity-control button:hover {
-  background-color: #a30000;
-}
-
-.quantity-control input {
-  width: 45px;
+#cart-table th, 
+#cart-table td {
+  border: 1px solid #ddd;
+  padding: 14px;
   text-align: center;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+}
+
+#cart-table th {
+  background-color: #f8f8f8;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+#cart-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+#cart-table tr:hover {
+  background-color: #f3e5d8;
+  transition: 0.2s;
+}
+
+/* Empty Cart Row */
+#cart-table td[colspan="5"] {
+  font-size: 1.2rem;
+  color: #666;
+  padding: 40px;
 }
 
 /* Remove Button */
-.remove-btn {
+button {
   background-color: #8b0000;
   color: white;
-  padding: 6px 16px;
+  padding: 8px 16px;
   font-size: 1rem;
   border: none;
   border-radius: 6px;
@@ -206,25 +165,16 @@ nav ul li a {
   transition: background-color 0.3s ease;
 }
 
-.remove-btn:hover {
+button:hover {
   background-color: #a30000;
 }
 
-/* Checkout Button */
-.checkout-btn {
-  background-color: #8b0000;
-  color: white;
-  padding: 12px 24px;
-  font-size: 1.1rem;
-  border: none;
-  border-radius: 8px;
+/* Grand Total */
+#grand-total {
   margin-top: 20px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.checkout-btn:hover {
-  background-color: #a30000;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #8b0000;
 }
 
 /* Footer */
@@ -235,4 +185,20 @@ footer {
   padding: 20px;
   font-size: 0.95rem;
   margin-top: 50px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #cart-table th, #cart-table td {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .cart-section h2 {
+    font-size: 2rem;
+  }
+
+  #grand-total {
+    font-size: 1.4rem;
+  }
 }

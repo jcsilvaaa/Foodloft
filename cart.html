@@ -15,12 +15,11 @@
     <nav>
       <ul>
         <li><a href="menu.html">Menu</a></li>
-        <li><a href="cart.html" class="active">Cart</a></li>
+        <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
         <li class="user-menu">
           <img id="userAvatar" src="user.jpg" alt="User Profile" />
           <ul class="dropdown" id="user-dropdown">
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">Log Out</a></li>
+            <li><a href="#" onclick="logout()">Log Out</a></li>
           </ul>
         </li>
       </ul>
@@ -29,61 +28,99 @@
 
   <section class="cart-section">
     <h2>Your Cart</h2>
-    <div class="cart-items">
+    <table id="cart-table">
+      <thead>
+        <tr>
+          <th>Food</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <h3 id="grand-total">Grand Total: ₱0</h3>
 
-      <div class="cart-item">
-        <img src="kikiam.jpg" alt="Kikiam">
-        <div class="item-details">
-          <h3>Kikiam</h3>
-          <p>₱35.00</p>
-          <div class="quantity-control">
-            <button onclick="decrease(this)">−</button>
-            <input type="number" value="2" min="1" />
-            <button onclick="increase(this)">+</button>
-          </div>
-        </div>
-        <button class="remove-btn">Remove</button>
-      </div>
-
-      <div class="cart-item">
-        <img src="dumpling.jpg" alt="Dumpling">
-        <div class="item-details">
-          <h3>Dumpling</h3>
-          <p>₱45.00</p>
-          <div class="quantity-control">
-            <button onclick="decrease(this)">−</button>
-            <input type="number" value="1" min="1" />
-            <button onclick="increase(this)">+</button>
-          </div>
-        </div>
-        <button class="remove-btn">Remove</button>
-      </div>
-
-    </div>
-
-    <div class="cart-summary">
-      <h3>Total: ₱115.00</h3>
-      <button class="checkout-btn">Proceed to Checkout</button>
-    </div>
+    <!-- ✅ Proceed to Checkout Button -->
+    <button id="checkout-btn" class="checkout-btn" style="margin-top: 20px; padding: 12px 24px; font-size: 1.2rem; background-color: #8b0000; color: white; border: none; border-radius: 8px; cursor: pointer;">
+      Proceed to Checkout
+    </button>
   </section>
 
   <footer>
-    <p>&copy; 2025 FoodLoft. Made with flavor and tradition.</p>
-    IG: @FoodLoft &nbsp; | &nbsp; FB: FoodLoft
+    <p>&copy; 2025 FoodLoft. Taste the tradition!</p>
   </footer>
 
-  <script>
-    function increase(button) {
-      const input = button.previousElementSibling;
-      input.value = parseInt(input.value) + 1;
-    }
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) {
+  alert("Please login first.");
+  window.location.href = "login.html";
+}
 
-    function decrease(button) {
-      const input = button.nextElementSibling;
-      if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
+document.addEventListener('DOMContentLoaded', () => {
+  fetchCart();
+
+  // ✅ Checkout button action
+  document.getElementById('checkout-btn').addEventListener('click', () => {
+    window.location.href = "checkout.html";
+  });
+});
+
+function fetchCart() {
+  fetch(`http://localhost:3000/cart/${user.user_id}`)
+    .then(res => res.json())
+    .then(cartItems => {
+      const tbody = document.querySelector("#cart-table tbody");
+      tbody.innerHTML = "";
+      let grandTotal = 0;
+
+      if (cartItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">Your cart is empty.</td></tr>`;
+        document.getElementById("checkout-btn").style.display = "none"; // Hide button if empty
+      } else {
+        document.getElementById("checkout-btn").style.display = "inline-block"; // Show if items exist
+        cartItems.forEach(item => {
+          const total = item.price * item.quantity;
+          grandTotal += total;
+          const row = `
+            <tr>
+              <td>${item.name}</td>
+              <td>₱${item.price}</td>
+              <td>${item.quantity}</td>
+              <td>₱${total}</td>
+              <td><button onclick="removeFromCart(${item.cart_id})">Remove</button></td>
+            </tr>
+          `;
+          tbody.insertAdjacentHTML("beforeend", row);
+        });
       }
-    }
-  </script>
+
+      document.getElementById("grand-total").textContent = `Grand Total: ₱${grandTotal}`;
+      document.getElementById("cart-count").textContent = cartItems.length;
+    })
+    .catch(err => console.error("❌ Error fetching cart:", err));
+}
+
+function removeFromCart(cartId) {
+  fetch(`http://localhost:3000/cart/${cartId}`, {
+    method: "DELETE"
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message);
+    fetchCart();
+  })
+  .catch(err => console.error("❌ Error removing item:", err));
+}
+
+function logout() {
+  localStorage.removeItem("user");
+  localStorage.removeItem("isLoggedIn");
+  alert("You have been logged out.");
+  window.location.href = "login.html";
+}
+</script>
 </body>
 </html>

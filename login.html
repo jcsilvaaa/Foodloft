@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - TasteCheck</title>
+    <title>Login - FoodLoftPH</title>
     <link rel="stylesheet" href="login.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -15,13 +15,7 @@
     </div>
     <nav>
         <ul>
-            <li><a href="menu.html">Menu</a></li>
-            <li class="user-menu">
-                <a href="#" class="user-icon">
-                    <img id="userAvatar" src="/Images/User.jpg" alt="User Profile">
-                </a>
-                <ul class="dropdown"></ul> 
-            </li>
+       
         </ul>
     </nav>
 </header>
@@ -49,70 +43,58 @@
 </section>
 
 <footer>
-    <p>&copy; 2025 FoodLoftPh. All Rights Reserved.</p>
+    <p>&copy; 2025 FoodLoftPH. All Rights Reserved.</p>
 </footer>
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM loaded.");
 
-function logout() {
-    fetch("http://localhost:3000/logout", { method: "POST" })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data.message);
-            localStorage.removeItem("user");
-            window.location.href = "Homepage.html"; // Redirect to homepage
-        })
-        .catch(error => console.error("❌ Logout error:", error));
-}
+    // ✅ Auto login if Remember Me is enabled
+    if (localStorage.getItem("isLoggedIn") === "true") {
+        window.location.href = "Homepage.html";
+        return;
+    }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        console.log("DOM fully loaded and script running.");
-    
-        // Handle login form submission
-        const loginForm = document.getElementById("login-form");
-    
-        if (loginForm) {
-            loginForm.addEventListener("submit", async function (event) {
-                event.preventDefault(); // Prevent page refresh
-                console.log("Login form submitted");
-    
-                const email = document.getElementById("email").value;
-                const password = document.getElementById("password").value;
-    
-                console.log("Email:", email);
-                console.log("Password:", password);
-    
-                try {
-                    const response = await fetch("http://localhost:3000/login", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ email, password }),
-                    });
-    
-                    const data = await response.json();
-                    console.log("Response received:", data);
-    
-                    if (response.ok) {
-                    console.log("Login successful!");
+    const loginForm = document.getElementById("login-form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const rememberMe = document.getElementById("rememberme").checked;
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:3000/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("✅ Login successful!");
                     localStorage.setItem("user", JSON.stringify(data.user));
-                    localStorage.setItem("isLoggedIn", "true"); 
-                    window.location.href = "Homepage.html"; // Redirect to homepage
-                    } else {
-                        console.error("Login failed:", data.message);
-                        alert(data.message); // Show error message
-                    }
-                } catch (error) {
-                    console.error("Login error:", error);
-                    alert("An error occurred. Please try again.");
+                    localStorage.setItem("isLoggedIn", rememberMe ? "true" : "false");
+                    window.location.href = "Homepage.html";
+                } else {
+                    alert("❌ " + data.message);
                 }
-            });
-        } else {
-            console.error("Login form not found.");
-        }
-    });
-    </script>
+            } catch (error) {
+                console.error("Login error:", error);
+                alert("An error occurred. Please try again.");
+            }
+        });
+    }
+});
+</script>
 
 </body>
 </html>

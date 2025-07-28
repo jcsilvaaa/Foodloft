@@ -6,16 +6,25 @@ const multer = require('multer');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const PORT = 3000;
 
+// ✅ Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads')); // Serve uploaded images
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// ✅ Multer configuration for avatar & food uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
 
-// MySQL DB Connection
+// ✅ Database connection
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -25,127 +34,190 @@ const db = mysql.createConnection({
 
 db.connect(err => {
   if (err) {
-    console.error('❌ DB connection failed:', err);
+    console.error('❌ Database connection failed:', err);
   } else {
-    console.log('✅ Connected to MySQL');
+    console.log('✅ Connected to MySQL database.');
   }
 });
 
-// === Configure Multer for File Uploads ===
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Save to 'uploads' folder
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
-  }
-});
 
-const upload = multer({ storage });
+// ============================
+// ✅ AUTH ROUTES
+// ============================
 
-// === REGISTER ROUTE ===
+// ✅ Register new user
 app.post('/register', upload.single('avatar'), (req, res) => {
-  const { username, email, password, description, full_name } = req.body;
-  const avatar = req.file ? req.file.filename : null;
-  
-  const sql = 'INSERT INTO users (username, email, password, avatar, description, full_name) VALUES (?, ?, ?, ?, ?, ?)';
-  db.query(sql, [username, email, password, avatar, description, full_name], (err, result) => {
+  const { full_name, username, email, password, description } = req.body;
+  const avatar = req.file ? `/uploads/${req.file.filename}` : null;
+
+  if (!full_name || !username || !email || !password) {
+    return res.status(400).json({ message: 'All required fields must be filled' });
+  }
+
+  const sql = 'INSERT INTO users (full_name, username, email, password, avatar, description) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(sql, [full_name, username, email, password, avatar, description || ''], (err) => {
     if (err) {
       console.error('❌ Registration Error:', err);
-      return res.status(500).json({ message: 'Registration failed.' });
+      return res.status(500).json({ message: 'Registration failed' });
     }
-
-    res.status(200).json({ message: '🎉 Registered successfully!' });
+    res.json({ message: '✅ Registration successful!' });
   });
 });
 
-// === LOGIN ROUTE ===
+// ✅ Login user
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
-  const sql = 'SELECT * FROM users WHERE email = ? AND password = ? LIMIT 1';
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
+
+  const sql = 'SELECT user_id, username, email FROM users WHERE email = ? AND password = ?';
   db.query(sql, [email, password], (err, results) => {
     if (err) {
       console.error('❌ Login Error:', err);
-      return res.status(500).json({ message: 'Server error during login.' });
+      return res.status(500).json({ message: 'Login failed' });
     }
 
-    if (results.length > 0) {
-      const user = results[0];
-      res.status(200).json({ message: '✅ Login successful!', user });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password.' });
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    const user = results[0];
+    res.json({ message: '✅ Login successful', user });
   });
 });
 
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
+
+// ============================
+// ✅ MENU ROUTES
+// ============================
+
+// ✅ Get all food items
+app.get('/menu', (req, res) => {
+  const sql = 'SELECT * FROM food';
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: 'Failed to fetch menu' });
+    res.json(results);
+  });
 });
 
-// === ADD TO CART ROUTE ===
+// ✅ Add new food item (Admin)
+app.post('/admin/menu', upload.single('image'), (req, res) => {
+  const { name, description, price, category_id, quantity } = req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
+
+  if (!name || !price || !quantity) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const sql = 'INSERT INTO food (name, description, price, image, category_id, quantity) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(sql, [name, description || '', price, image, category_id || 1, quantity], (err) => {
+    if (err) return res.status(500).json({ error: 'Failed to add food item' });
+    res.json({ message: 'Food item added successfully' });
+  });
+});
+
+
+// ============================
+// ✅ CART ROUTES
+// ============================
+
+// ✅ Add to cart and deduct stock
 app.post('/cart', (req, res) => {
   const { user_id, food_id, quantity } = req.body;
 
-  const sql = 'INSERT INTO cart (user_id, food_id, quantity) VALUES (?, ?, ?)';
-  db.query(sql, [user_id, food_id, quantity], (err, result) => {
-    if (err) {
-      console.error('❌ Error adding to cart:', err);
-      return res.status(500).json({ message: 'Failed to add to cart' });
-    }
-    res.status(200).json({ message: '🛒 Item added to cart' });
+  if (!user_id || !food_id || !quantity) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  db.query('SELECT quantity FROM food WHERE food_id = ?', [food_id], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+
+    if (results.length === 0) return res.status(404).json({ error: 'Food item not found' });
+
+    const stock = results[0].quantity;
+    if (stock < quantity) return res.status(400).json({ error: 'Not enough stock' });
+
+    const checkSql = 'SELECT * FROM cart WHERE user_id = ? AND food_id = ?';
+    db.query(checkSql, [user_id, food_id], (err, cartResults) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+
+      if (cartResults.length > 0) {
+        const updateSql = 'UPDATE cart SET quantity = quantity + ? WHERE user_id = ? AND food_id = ?';
+        db.query(updateSql, [quantity, user_id, food_id], (err) => {
+          if (err) return res.status(500).json({ error: 'Failed to update cart' });
+
+          db.query('UPDATE food SET quantity = quantity - ? WHERE food_id = ?', [quantity, food_id], (err) => {
+            if (err) return res.status(500).json({ error: 'Failed to update stock' });
+            return res.json({ message: 'Cart updated successfully' });
+          });
+        });
+      } else {
+        const insertSql = 'INSERT INTO cart (user_id, food_id, quantity) VALUES (?, ?, ?)';
+        db.query(insertSql, [user_id, food_id, quantity], (err) => {
+          if (err) return res.status(500).json({ error: 'Failed to add to cart' });
+
+          db.query('UPDATE food SET quantity = quantity - ? WHERE food_id = ?', [quantity, food_id], (err) => {
+            if (err) return res.status(500).json({ error: 'Failed to update stock' });
+            return res.json({ message: 'Added to cart successfully' });
+          });
+        });
+      }
+    });
   });
 });
 
-// === GET CART ITEMS BY USER ===
-app.get('/cart/:user_id', (req, res) => {
-  const user_id = req.params.user_id;
+// ✅ Get cart items
+app.get('/cart/:userId', (req, res) => {
+  const { userId } = req.params;
 
   const sql = `
-    SELECT cart.id AS cart_id, food_id, quantity, f.name, f.price, f.image
-    FROM cart 
-    JOIN food f ON cart.food_id = f.id 
-    WHERE cart.user_id = ?
+    SELECT c.cart_id, f.name, f.price, c.quantity, f.food_id
+    FROM cart c
+    JOIN food f ON c.food_id = f.food_id
+    WHERE c.user_id = ?
   `;
 
-  db.query(sql, [user_id], (err, results) => {
+  db.query(sql, [userId], (err, results) => {
     if (err) {
       console.error('❌ Error fetching cart:', err);
-      return res.status(500).json({ message: 'Failed to fetch cart items' });
+      return res.status(500).json({ error: 'Failed to fetch cart' });
     }
-    res.status(200).json(results);
+    res.json(results);
   });
 });
 
-// === DELETE SPECIFIC ITEM FROM CART ===
-app.delete('/cart/:cart_id', (req, res) => {
-  const cart_id = req.params.cart_id;
+// ✅ Remove item from cart
+app.delete('/cart/:cartId', (req, res) => {
+  const { cartId } = req.params;
 
-  const sql = 'DELETE FROM cart WHERE id = ?';
-  db.query(sql, [cart_id], (err, result) => {
-    if (err) {
-      console.error('❌ Error deleting cart item:', err);
-      return res.status(500).json({ message: 'Failed to delete cart item' });
-    }
-    res.status(200).json({ message: '🗑️ Cart item deleted' });
+  db.query('SELECT food_id, quantity FROM cart WHERE cart_id = ?', [cartId], (err, results) => {
+    if (err || results.length === 0) return res.status(404).json({ error: 'Cart item not found' });
+
+    const foodId = results[0].food_id;
+    const quantity = results[0].quantity;
+
+    db.query('DELETE FROM cart WHERE cart_id = ?', [cartId], (err) => {
+      if (err) return res.status(500).json({ error: 'Failed to remove item' });
+
+      db.query('UPDATE food SET quantity = quantity + ? WHERE food_id = ?', [quantity, foodId], (err) => {
+        if (err) return res.status(500).json({ error: 'Failed to restore stock' });
+        return res.json({ message: 'Item removed successfully' });
+      });
+    });
   });
 });
 
-// === CLEAR ALL ITEMS FOR USER CART ===
-app.delete('/cart/user/:user_id', (req, res) => {
-  const user_id = req.params.user_id;
 
-  const sql = 'DELETE FROM cart WHERE user_id = ?';
-  db.query(sql, [user_id], (err, result) => {
-    if (err) {
-      console.error('❌ Error clearing cart:', err);
-      return res.status(500).json({ message: 'Failed to clear cart' });
-    }
-    res.status(200).json({ message: '🧹 Cart cleared for user' });
-  });
+// ✅ Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
+
+
+
+
 
 // === ORDER HISTORY ROUTE ===
 // Get orders for a user
@@ -1171,3 +1243,4 @@ app.get("/admin/dashboard/summary", (req, res) => {
       res.status(500).json({ error: "Database error" });
     });
 });
+
