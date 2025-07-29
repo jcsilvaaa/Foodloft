@@ -86,3 +86,17 @@ CREATE TABLE order_items (
   CONSTRAINT order_items_ibfk_1 FOREIGN KEY (order_id) REFERENCES orders (order_id),
   CONSTRAINT order_items_ibfk_2 FOREIGN KEY (food_id) REFERENCES food (food_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Table: feedback
+DROP TABLE IF EXISTS feedback;
+CREATE TABLE feedback (
+  feedback_id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  rating INT CHECK (rating BETWEEN 1 AND 5),
+  comment TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (feedback_id),
+  KEY user_id (user_id),
+  CONSTRAINT feedback_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
