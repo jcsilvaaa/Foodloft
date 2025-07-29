@@ -28,7 +28,7 @@ const upload = multer({ storage });
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '',
+  password: '_Sideswipe21',
   database: 'foodloft_db'
 });
 
@@ -215,9 +215,84 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
 
+// === UPDATE PROFILE (with file upload) ===
+app.post('/update-profile/:id', upload.single('avatar'), (req, res) => {
+  const userId = req.params.id;
+  const { email, username, full_name, description } = req.body;
+  const avatar = req.file ? `/uploads/${req.file.filename}` : null;
 
+  db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
 
+    const currentUser = results[0];
+    const updatedUser = {
+      ...currentUser,
+      email: email || currentUser.email,
+      username: username || currentUser.username,
+      full_name: full_name || currentUser.full_name,
+      description: description || currentUser.description,
+      avatar: avatar || currentUser.avatar
+    };
 
+    const sql = `
+      UPDATE users
+      SET email = ?, username = ?, full_name = ?, description = ?, avatar = ?
+      WHERE user_id = ?
+    `;
+
+    db.query(sql, [
+      updatedUser.email,
+      updatedUser.username,
+      updatedUser.full_name,
+      updatedUser.description,
+      updatedUser.avatar,
+      userId
+    ], (err, result) => {
+      if (err) {
+        console.error("❌ DB Update Error:", err);
+        return res.status(500).json({ message: 'Profile update failed.' });
+      }
+
+      res.status(200).json({ message: '✅ Profile updated successfully!', updatedUser });
+    });
+  });
+});
+
+// ======= CHANGE PASSWORD ROUTE =======
+app.put('/change-password/:id', (req, res) => {
+  const userId = req.params.id;
+  const { oldPassword, newPassword } = req.body;
+
+  // Step 1: Fetch user from DB
+  db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
+    if (err) {
+      console.error("❌ DB error:", err);
+      return res.status(500).json({ message: "Database error." });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const user = results[0];
+
+    // Step 2: Check old password (plain text comparison)
+    // ⚠️ NOTE: In production, passwords must be hashed and compared securely!
+    if (oldPassword !== user.password) {
+      return res.status(401).json({ message: "Old password is incorrect." });
+    }
+
+    // Step 3: Update password
+    db.query('UPDATE users SET password = ? WHERE user_id = ?', [newPassword, userId], (err) => {
+      if (err) {
+        console.error("❌ Update error:", err);
+        return res.status(500).json({ message: "Failed to change password." });
+      }
+      res.json({ message: "✅ Password updated successfully!" });
+    });
+  });
+});
 
 // === ORDER HISTORY ROUTE ===
 // Get orders for a user
