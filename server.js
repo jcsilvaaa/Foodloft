@@ -28,7 +28,7 @@ const upload = multer({ storage });
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '',
+  password: '_Sideswipe21',
   database: 'foodloft_db'
 });
 
@@ -47,15 +47,29 @@ db.connect(err => {
 
 // ✅ Register new user
 app.post('/register', upload.single('avatar'), (req, res) => {
-  const { full_name, username, email, password, description } = req.body;
+  const { full_name, username, email, password, address, contact_number, description } = req.body;
   const avatar = req.file ? `/uploads/${req.file.filename}` : null;
 
-  if (!full_name || !username || !email || !password) {
+  // Validate required fields
+  if (!full_name || !username || !email || !password || !address || !contact_number) {
     return res.status(400).json({ message: 'All required fields must be filled' });
   }
 
-  const sql = 'INSERT INTO users (full_name, username, email, password, avatar, description) VALUES (?, ?, ?, ?, ?, ?)';
-  db.query(sql, [full_name, username, email, password, avatar, description || ''], (err) => {
+  const sql = `
+    INSERT INTO users (full_name, username, email, password, avatar, address, contact_number, description)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(sql, [
+    full_name,
+    username,
+    email,
+    password,
+    avatar,
+    address,
+    contact_number,
+    description || ''
+  ], (err) => {
     if (err) {
       console.error('❌ Registration Error:', err);
       return res.status(500).json({ message: 'Registration failed' });
@@ -215,10 +229,19 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
 
-// === UPDATE PROFILE (with file upload) ===
+// === UPDATE PROFILE (with file upload + address & contact number) ===
 app.post('/update-profile/:id', upload.single('avatar'), (req, res) => {
   const userId = req.params.id;
-  const { email, username, full_name, description } = req.body;
+
+  const {
+    email,
+    username,
+    full_name,
+    description,
+    address,
+    contact_number
+  } = req.body;
+
   const avatar = req.file ? `/uploads/${req.file.filename}` : null;
 
   db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
@@ -227,18 +250,21 @@ app.post('/update-profile/:id', upload.single('avatar'), (req, res) => {
     }
 
     const currentUser = results[0];
+
     const updatedUser = {
       ...currentUser,
       email: email || currentUser.email,
       username: username || currentUser.username,
       full_name: full_name || currentUser.full_name,
       description: description || currentUser.description,
+      address: address || currentUser.address,
+      contact_number: contact_number || currentUser.contact_number,
       avatar: avatar || currentUser.avatar
     };
 
     const sql = `
       UPDATE users
-      SET email = ?, username = ?, full_name = ?, description = ?, avatar = ?
+      SET email = ?, username = ?, full_name = ?, description = ?, address = ?, contact_number = ?, avatar = ?
       WHERE user_id = ?
     `;
 
@@ -247,6 +273,8 @@ app.post('/update-profile/:id', upload.single('avatar'), (req, res) => {
       updatedUser.username,
       updatedUser.full_name,
       updatedUser.description,
+      updatedUser.address,
+      updatedUser.contact_number,
       updatedUser.avatar,
       userId
     ], (err, result) => {

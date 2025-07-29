@@ -47,6 +47,10 @@
           <input type="text" id="usernameField">
           <label>Full Name</label>
           <input type="text" id="fullNameField">
+          <label>Address</label>
+          <input type="text" id="addressField">
+          <label>Contact Number</label>
+          <input type="text" id="contactNumberField">
 
           <button id="saveProfileBtn">Save Profile</button>
         </div>
@@ -88,6 +92,8 @@
       document.getElementById("emailField").value = user.email || "";
       document.getElementById("usernameField").value = user.username || "";
       document.getElementById("fullNameField").value = user.full_name || "";
+      document.getElementById("addressField").value = user.address || "";
+      document.getElementById("contactNumberField").value = user.contact_number || "";
 
       if (user.avatar) {
         document.getElementById("profile-picture").src = "http://localhost:3000" + user.avatar;
@@ -100,6 +106,8 @@
         formData.append("email", document.getElementById("emailField").value);
         formData.append("username", document.getElementById("usernameField").value);
         formData.append("full_name", document.getElementById("fullNameField").value);
+        formData.append("address", document.getElementById("addressField").value);
+        formData.append("contact_number", document.getElementById("contactNumberField").value);
 
         const profilePicInput = document.getElementById("profilePicInput");
         if (profilePicInput.files.length > 0) {
