@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodLoft - Chinese Meat Balls Review</title>
+  <link rel="stylesheet" href="kikiam.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <h1>FoodLoftPH</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="Homepage.html">Home</a></li>
+        <li><a href="menu.html">Menu</a></li>
+        <li><a href="cart.html" class="active">Cart</a></li>
+        <li class="user-menu">
+          <img id="userAvatar" src="user.jpg" alt="User Profile" />
+          <ul class="dropdown" id="user-dropdown">
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Log Out</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+      <section class="review-container">
+        <div class="review-description">
+            <h2>Dumplings</h2>
+            <p>
+              Dumpling Lovers, This One’s For You! Whether steamed, fried, or boiled - these juicy dumplings are perfect for any craving.
+Great for parties, negosyo, or your next Netflix night
+
+
+            </p>
+            <p>
+                Order now while stocks last!
+            </p>
+            <p>
+                Pickup or delivery available
+            </p>
+        </div>
+      </section>
+
+  <div class="review-form" id="review-form">
+    <h2>Leave a Review</h2>
+    <textarea id="reviewText" placeholder="Write your review here..." rows="4"></textarea>
+    <label for="starRating">Star Rating</label>
+    <select id="starRating">
+      <option value="">-- Select Rating --</option>
+      <option value="1">⭐</option>
+      <option value="2">⭐⭐</option>
+      <option value="3">⭐⭐⭐</option>
+      <option value="4">⭐⭐⭐⭐</option>
+      <option value="5">⭐⭐⭐⭐⭐</option>
+    </select>
+    <button onclick="submitReview()">Submit Review</button>
+    <div id="reviewMessage"></div>
+  </div>
+
+  <div class="reviews-container">
+    <h2>All Reviews for Kikiam</h2>
+    <div id="reviewsList">
+      <p>Loading reviews...</p>
+    </div>
+  </div>
+
+  <!-- ✅ SCRIPT REPLACEMENT START -->
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) {
+      document.getElementById('review-form').innerHTML = "<p><strong>Please log in to leave a review.</strong></p>";
+    }
+
+    function submitReview() {
+      const reviewText = document.getElementById("reviewText").value.trim();
+      const rating = document.getElementById("starRating").value;
+
+      if (!reviewText || !rating) {
+        document.getElementById("reviewMessage").innerText = "Please fill in all fields.";
+        return;
+      }
+
+      fetch("http://localhost:3000/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          user_name: user.username,
+          branch: "dumpling",
+          rating: parseInt(rating),
+          review_text: reviewText
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("reviewMessage").innerText = data.message;
+        document.getElementById("reviewText").value = "";
+        document.getElementById("starRating").value = "";
+        loadReviews();
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("reviewMessage").innerText = "An error occurred. Please try again.";
+      });
+    }
+
+    function loadReviews() {
+      fetch("http://localhost:3000/reviews/dumpling")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("reviewsList");
+          container.innerHTML = "";
+
+          if (!Array.isArray(data) || data.length === 0) {
+            container.innerHTML = "<p>No reviews yet. Be the first to leave one!</p>";
+            return;
+          }
+
+          data.forEach(review => {
+            const div = document.createElement("div");
+            div.classList.add("review");
+            div.innerHTML = `
+              <h3>${review.user_name}</h3>
+              <p class="rating">Rating: ${'⭐'.repeat(review.rating)}</p>
+              <p>${review.review_text}</p>
+              <small>Posted on ${new Date(review.created_at).toLocaleString()}</small>
+            `;
+            container.appendChild(div);
+          });
+        })
+        .catch(err => {
+          console.error("Error loading reviews:", err);
+          document.getElementById("reviewsList").innerText = "Failed to load reviews.";
+        });
+    }
+
+    window.onload = loadReviews;
+  </script>
+  <!-- ✅ SCRIPT REPLACEMENT END -->
+
+  <footer>
+    <p>&copy; 2025 FoodLoft. Made with flavor and tradition.</p>
+    IG: @FoodLoft &nbsp; | &nbsp; FB: FoodLoft
+  </footer>
+</body>
+</html>

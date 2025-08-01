@@ -19,7 +19,6 @@
         <li class="user-menu">
           <img id="userAvatar" src="user.jpg" alt="User Profile" />
           <ul class="dropdown" id="user-dropdown">
-            <li><a href="User.html">Profile</a></li>
             <li><a href="#" onclick="logout()">Log Out</a></li>
           </ul>
         </li>
@@ -39,14 +38,9 @@
     <h2 class="branches-heading">Featured Chinese Dishes</h2>
     <p>Our handpicked favorites to get you started.</p>
     <div class="branches-list">
-      <div class="featured-item" style="background-image: url('Kikiam.jpg');">
-        <span class="featured-label">Kikiam</span>
-      </div>
-      <div class="featured-item" style="background-image: url('CMB.jpg');">
-        <span class="featured-label">Chinese Meat Balls</span>
-      </div>
-      <div class="featured-item" style="background-image: url('Dumpling.jpg');">
-        <span class="featured-label">Dumpling</span>
+            <button class="featured-item" style="background-image: url('Kikiam.jpg');" onclick="window.location.href='Kikiam.html'"></button>
+            <button class="featured-item" style="background-image: url('CMB.jpg');" onclick="window.location.href='CMB.html'"></button>
+            <button class="featured-item" style="background-image: url('Dumpling.jpg');" onclick="window.location.href='Dumpling.html'"></button>
       </div>
     </div>
   </section>

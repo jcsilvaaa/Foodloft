@@ -10,7 +10,7 @@
 <body>
   <header>
     <div class="logo">
-      <h1><a href="Homepage.html" class="logo-link">FoodLoftPH</a></h1>
+      <h1>FoodLoftPH</h1>
     </div>
     <nav>
       <ul>
@@ -33,56 +33,42 @@
     <div class="checkout-grid">
       <section class="billing">
         <h2>Billing Details</h2>
-        <form>
+        <form id="checkoutForm">
           <div class="form-row">
-            <input type="text" placeholder="First Name*" required />
-            <input type="text" placeholder="Last Name*" required />
+            <input type="text" name="first_name" placeholder="First Name*" required />
+            <input type="text" name="last_name" placeholder="Last Name*" required />
           </div>
-          <input type="text" placeholder="Company Name (optional)" />
-          <input type="text" placeholder="Country / Region*" required />
-          <input type="text" placeholder="Street Address*" required />
-          <input type="text" placeholder="Town / City*" required />
+          <input type="text" name="company_name" placeholder="Company Name (optional)" />
+          <input type="text" name="country_region" placeholder="Country / Region*" required />
+          <input type="text" name="street_address" placeholder="Street Address*" required />
+          <input type="text" name="city" placeholder="Town / City*" required />
           <div class="form-row">
-            <input type="text" placeholder="State*" required />
-            <input type="text" placeholder="ZIP*" required />
+            <input type="text" name="state" placeholder="State*" required />
+            <input type="text" name="zip" placeholder="ZIP*" required />
           </div>
-          <input type="tel" placeholder="Phone*" required />
-          <input type="email" placeholder="Email Address*" required />
-    
+          <input type="tel" name="phone_number" placeholder="Phone*" required />
+          <input type="email" name="email_address" placeholder="Email Address*" required />
 
           <h3>Additional Information</h3>
-          <textarea placeholder="Notes about your order, e.g., special notes for delivery"></textarea>
+          <textarea name="additional_info" placeholder="Notes about your order (optional)"></textarea>
+
+          <select name="payment_method" required>
+            <option value="Cash on Delivery">Cash on Delivery</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Credit Card">Gcash</option>
+            <option value="Credit Card">Apple Pay</option>
+          </select>
+
+          <button type="submit" class="place-order">Place Order →</button>
         </form>
+        <div id="message"></div>
       </section>
 
       <aside class="summary">
         <h2>Your Order</h2>
-        <ul class="order-list">
-          <li><span>Vegetable Salad x1</span><span>$15.69</span></li>
-          <li><span>Cooked Seafoods x1</span><span>$20.50</span></li>
-          <li class="subtotal"><span>Subtotal</span><span>$36.19</span></li>
-          <li class="total"><span>Total</span><span>$36.19</span></li>
-        </ul>
-
-        <h2>Payment Method</h2>
-        <!-- <form class="payment-methods">
-          <label><input type="radio" name="payment" checked /> Credit Card</label>
-          <label><input type="radio" name="payment" /> Paypal</label>
-          <label><input type="radio" name="payment" /> Google Pay</label>
-          <label><input type="radio" name="payment" /> Apple Pay</label>
-          <label><input type="radio" name="payment" /> Cash on Delivery</label>
-        </form> -->
-        
-        <form class="payment-methods">
-            <label><input type="radio" name="payment" checked /> Credit Card</label>
-            <label><input type="radio" name="payment" /> Paypal</label>
-            <label><input type="radio" name="payment" /> Google Pay</label>
-            <label><input type="radio" name="payment" /> Apple Pay</label>
-            <label><input type="radio" name="payment" /> Cash on Delivery</label>
-          </form>
-
-        <p class="privacy">Your personal data will be used to process your order, support your experience...</p>
-        <button class="place-order">Place Order →</button>
+        <div id="order-items"></div>
+        <hr>
+        <p><strong>Total:</strong> ₱<span id="order-total">0.00</span></p>
       </aside>
     </div>
   </main>
@@ -92,5 +78,102 @@
     IG: @FoodLoft &nbsp; | &nbsp; FB: FoodLoft
   </footer>
 
+  <script>
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user.user_id) {
+      alert("You must be logged in to proceed to checkout.");
+      window.location.href = "login.html";
+    }
+
+    const user_id = user.user_id;
+
+    async function loadCartSummary() {
+      const orderItemsContainer = document.getElementById('order-items');
+      const totalDisplay = document.getElementById('order-total');
+      try {
+        const res = await fetch(`http://localhost:3000/cart/${user_id}`);
+        const cartItems = await res.json();
+
+        if (!Array.isArray(cartItems) || cartItems.length === 0) {
+          orderItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
+          totalDisplay.textContent = '0.00';
+          return;
+        }
+
+        let total = 0;
+        orderItemsContainer.innerHTML = '';
+        cartItems.forEach(item => {
+          const subtotal = item.price * item.quantity;
+          total += subtotal;
+
+          const itemDiv = document.createElement('div');
+          itemDiv.innerHTML = `<p>${item.name} × ${item.quantity} - ₱${subtotal.toFixed(2)}</p>`;
+          orderItemsContainer.appendChild(itemDiv);
+        });
+
+        totalDisplay.textContent = total.toFixed(2);
+      } catch (err) {
+        console.error('Failed to load cart summary:', err);
+        orderItemsContainer.innerHTML = '<p>Failed to load cart.</p>';
+      }
+    }
+
+    loadCartSummary();
+
+    document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+      data.user_id = user_id;
+
+      try {
+        const cartRes = await fetch(`http://localhost:3000/cart/${user_id}`);
+        const cartItems = await cartRes.json();
+
+        if (!Array.isArray(cartItems) || cartItems.length === 0) {
+          document.getElementById('message').textContent = 'Cart is empty.';
+          return;
+        }
+
+        let total_amount = 0;
+        const items = cartItems.map(item => {
+          const itemTotal = item.price * item.quantity;
+          total_amount += itemTotal;
+          return {
+            food_id: item.food_id,
+            quantity: item.quantity,
+            price: item.price
+          };
+        });
+
+        data.cartItems = items;
+        data.total_amount = total_amount;
+
+        const res = await fetch('http://localhost:3000/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result.message || 'Order failed');
+        }
+
+        
+
+        document.getElementById('message').textContent = result.message;
+        alert('✅ Order placed successfully!');
+        window.location.href = 'order_confirmed.html';
+      } catch (err) {
+        console.error(err);
+        document.getElementById('message').textContent = 'Failed to place order: ' + err.message;
+      }
+    });
+  </script>
 </body>
 </html>
