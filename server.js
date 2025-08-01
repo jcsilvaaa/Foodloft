@@ -223,6 +223,121 @@ app.delete('/cart/:cartId', (req, res) => {
   });
 });
 
+// Checkout
+
+app.post('/checkout', (req, res) => {
+  const {
+    user_id,
+    first_name,
+    last_name,
+    company_name,
+    country_region,
+    street_address,
+    city,
+    state,
+    zip,
+    phone_number,
+    email_address,
+    additional_info,
+    payment_method,
+    cartItems, // array of items: { food_id, quantity, price }
+    total_amount
+  } = req.body;
+
+  if (!user_id || !first_name || !last_name || !country_region || !street_address || !city || !state || !zip || !phone_number || !email_address || !payment_method || !cartItems || cartItems.length === 0) {
+    return res.status(400).json({ message: 'Please fill out all required fields and include cart items.' });
+  }
+
+  const orderQuery = `
+    INSERT INTO orders (
+      user_id, first_name, last_name, company_name, country_region, street_address,
+      city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const orderValues = [
+    user_id, first_name, last_name, company_name, country_region, street_address,
+    city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount,
+    new Date() // `created_at`
+  ];
+
+  db.query(orderQuery, orderValues, (orderErr, orderResult) => {
+    if (orderErr) {
+      console.error('Order insert failed:', orderErr);
+      return res.status(500).json({ message: 'Failed to place order', error: orderErr.message });
+    }
+
+    const order_id = orderResult.insertId;
+
+    const itemValues = cartItems.map(item => [order_id, item.food_id, item.quantity, item.price]);
+    const itemQuery = `
+      INSERT INTO order_items (order_id, food_id, quantity, price)
+      VALUES ?
+    `;
+
+    db.query(itemQuery, [itemValues], (itemsErr) => {
+      if (itemsErr) {
+        console.error('Order items insert failed:', itemsErr);
+        return res.status(500).json({ message: 'Failed to save order items' });
+      }
+
+    });
+
+    
+    const clearCartQuery = 'DELETE FROM cart WHERE user_id = ?';
+    db.query(clearCartQuery, [user_id], (clearErr) => {
+      if (clearErr) {
+        console.error('Failed to clear cart:', clearErr);
+        return res.status(500).json({ message: 'Order placed, but failed to clear cart.' });
+      }
+
+      return res.status(200).json({ message: '✅ Order placed successfully!' });
+    });
+  });
+});
+
+// Reviews 
+
+app.post('/reviews', (req, res) => {
+  const { user_id, user_name, branch, rating, review_text } = req.body;
+
+  if (!user_id || !user_name || !branch || !rating || !review_text) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  const sql = `
+    INSERT INTO reviews (user_id, user_name, branch, rating, review_text)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(sql, [user_id, user_name, branch, rating, review_text], (err, result) => {
+    if (err) {
+      console.error('Failed to insert review:', err);
+      return res.status(500).json({ message: 'Failed to save review', error: err });
+    }
+    res.status(200).json({ message: '✅ Review submitted successfully!' });
+  });
+});
+
+
+app.get('/reviews/:branch', (req, res) => {
+  const { branch } = req.params;
+
+  const sql = `
+    SELECT user_name, rating, review_text, created_at
+    FROM reviews
+    WHERE branch = ?
+    ORDER BY review_id DESC
+  `;
+
+  db.query(sql, [branch], (err, results) => {
+    if (err) {
+      console.error('Error fetching reviews:', err);
+      return res.status(500).json({ message: 'Failed to fetch reviews' });
+    }
+    res.status(200).json(results);
+  });
+});
 
 // ✅ Start server
 app.listen(PORT, () => {
