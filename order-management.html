@@ -726,10 +726,9 @@
 
       // Authentication check
       function checkAdminAccess() {
-        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
         const user = JSON.parse(localStorage.getItem("user"));
         
-        if (!isLoggedIn || !user || user.role !== 'admin') {
+        if (!user || user.role !== 'admin') {
           window.location.href = "login.html";
           return false;
         }
