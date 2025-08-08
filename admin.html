@@ -808,7 +808,6 @@
 
       // Authentication and Access Control
       function checkAdminAccess() {
-        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
         const user = JSON.parse(localStorage.getItem("user"));
 
         // Show loading spinner initially
@@ -818,7 +817,8 @@
         setTimeout(() => {
           document.getElementById("loading-spinner").style.display = "none";
 
-          if (!isLoggedIn || !user) {
+          // Check if user exists and has admin role
+          if (!user) {
             showAccessDenied();
             return false;
           }
