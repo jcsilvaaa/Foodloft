@@ -151,6 +151,17 @@ nav ul li a {
   min-height: 60px;
 }
 
+.logo-link {
+  text-decoration: none;
+  color: inherit; /* Keeps the same color as the h1 */
+}
+
+.logo-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+
 /* Quantity Controls */
 .quantity-control {
   display: flex;

@@ -22,6 +22,12 @@ header .logo h1 {
     letter-spacing: 1px;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
 nav ul {
     list-style: none;
     display: flex;
@@ -141,6 +147,16 @@ nav ul li a {
 
 .login-box button:hover {
     background-color: #a60000;
+}
+
+.logo-link {
+    text-decoration: none;
+    color: inherit; /* Keeps the same color as the h1 */
+  }
+  
+.logo-link:hover {
+    text-decoration: none;
+    color: inherit;
 }
 
 .signup-link {

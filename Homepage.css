@@ -231,6 +231,16 @@ nav ul li a {
   text-align: center;
 }
 
+.logo-link {
+  text-decoration: none;
+  color: inherit; /* Keeps the same color as the h1 */
+}
+
+.logo-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
 .history-description h2 {
   font-size: 2.2rem;
   color: #8b0000;

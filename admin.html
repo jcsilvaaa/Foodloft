@@ -57,6 +57,23 @@
         object-fit: cover;
       }
 
+      .admin-user-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .admin-username {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .admin-role {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+      }
+
       .logout-btn {
         background: rgba(255, 255, 255, 0.2);
         border: 1px solid rgba(255, 255, 255, 0.3);
@@ -65,6 +82,8 @@
         border-radius: 6px;
         cursor: pointer;
         transition: background 0.3s ease;
+        text-decoration: none;
+        font-size: 0.9rem;
       }
 
       .logout-btn:hover {
@@ -135,6 +154,24 @@
       .page-title p {
         color: #666;
         font-size: 1.1rem;
+      }
+
+      .welcome-message {
+        background: linear-gradient(135deg, #8b0000 0%, #a60000 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .welcome-message h3 {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+      }
+
+      .welcome-message p {
+        opacity: 0.9;
       }
 
       /* Stats Cards */
@@ -210,7 +247,7 @@
       /* Charts Section */
       .charts-section {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 30px;
         margin-bottom: 40px;
       }
@@ -229,23 +266,65 @@
         font-weight: 600;
       }
 
-      .chart-placeholder {
-        height: 300px;
-        background: linear-gradient(135deg, #fff0e5 0%, #fce5cd 100%);
+      .popular-dishes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .dish-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
         border-radius: 8px;
+        transition: background 0.3s ease;
+      }
+
+      .dish-item:hover {
+        background: #e9ecef;
+      }
+
+      .dish-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 15px;
+      }
+
+      .dish-info {
+        flex: 1;
+      }
+
+      .dish-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .dish-stats {
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .dish-rank {
+        background: #8b0000;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #8b0000;
-        font-size: 1.1rem;
-        border: 2px dashed #8b0000;
-        opacity: 0.7;
+        font-weight: 600;
+        font-size: 0.9rem;
       }
 
-      /* Tables */
+      /* Data Tables */
       .data-tables {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 30px;
       }
 
@@ -320,7 +399,7 @@
         text-transform: uppercase;
       }
 
-      .status-completed {
+      .status-delivered {
         background: #d4edda;
         color: #155724;
       }
@@ -328,26 +407,13 @@
         background: #fff3cd;
         color: #856404;
       }
-      .status-processing {
+      .status-preparing {
         background: #cce5ff;
         color: #004085;
       }
       .status-cancelled {
         background: #f8d7da;
         color: #721c24;
-      }
-
-      .priority-high {
-        color: #dc3545;
-        font-weight: 600;
-      }
-      .priority-medium {
-        color: #ffc107;
-        font-weight: 600;
-      }
-      .priority-low {
-        color: #28a745;
-        font-weight: 600;
       }
 
       /* Action Buttons */
@@ -416,13 +482,114 @@
         transform: translateY(-2px);
       }
 
+      /* Access Denied Styles */
+      .access-denied {
+        display: none;
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin: 50px auto;
+        max-width: 500px;
+      }
+
+      .access-denied .icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 20px;
+      }
+
+      .access-denied h2 {
+        color: #dc3545;
+        margin-bottom: 15px;
+      }
+
+      .access-denied p {
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      .access-denied .btn {
+        background: #8b0000;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      /* Loading Spinner */
+      .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 60px 20px;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #8b0000;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Loading states for content */
+      .loading-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .loading-content .mini-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #8b0000;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+      }
+
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px;
+        text-align: center;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .empty-state .icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
+      }
+
       /* Responsive */
       @media (max-width: 1024px) {
         .charts-section {
-          grid-template-columns: 1fr;
-        }
-
-        .data-tables {
           grid-template-columns: 1fr;
         }
       }
@@ -445,306 +612,756 @@
         .admin-header {
           padding: 15px 20px;
         }
+
+        .admin-user {
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+        }
+
+        .admin-user-info {
+          align-items: center;
+          text-align: center;
+        }
+
+        .charts-section {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
-    <header class="admin-header">
-      <div class="admin-logo">
-        <h1>FoodLoft</h1>
-        <span>Admin Dashboard</span>
-      </div>
-      <div class="admin-user">
-        <img
-          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-          alt="Admin"
-        />
-        <span>Admin User</span>
-        <button class="logout-btn">Logout</button>
-      </div>
-    </header>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading dashboard...</p>
+    </div>
 
-    <div class="dashboard-container">
-      <nav class="sidebar">
-        <ul class="sidebar-menu">
-          <li>
-            <a href="admin.html" class="active"
-              ><span class="icon">📊</span>Dashboard</a
-            >
-          </li>
-          <li>
-            <a href="order-management.html"
-              ><span class="icon">📋</span>Orders</a
-            >
-          </li>
-          <li>
-            <a href="menu-management.html"
-              ><span class="icon">🍜</span>Menu Management</a
-            >
-          </li>
-        </ul>
-      </nav>
+    <!-- Access Denied Message -->
+    <div class="access-denied" id="access-denied">
+      <div class="icon">🚫</div>
+      <h2>Access Denied</h2>
+      <p>You don't have permission to access this admin dashboard.</p>
+      <a href="login.html" class="btn">Go to Login</a>
+    </div>
 
-      <main class="main-content">
-        <!-- Dashboard Content -->
-        <div id="dashboard-content" class="tab-content active">
-          <div class="page-title">
-            <h2>Dashboard Overview</h2>
-            <p>Welcome back! Here's what's happening at FoodLoft today.</p>
-          </div>
-
-          <!-- Quick Actions -->
-          <div class="quick-actions">
-            <h3>Quick Actions</h3>
-            <div class="actions-grid">
-              <button class="quick-action-btn">
-                <span>➕</span>Add New Dish
-              </button>
-              <button class="quick-action-btn">
-                <span>📦</span>Process Orders
-              </button>
-              <!-- <button class="quick-action-btn">
-                <span>👥</span>Manage Staff
-              </button>
-              <button class="quick-action-btn">
-                <span>📊</span>View Reports
-              </button> -->
-            </div>
-          </div>
-
-          <!-- Stats Cards -->
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="icon orders">📋</div>
-              <h3>248</h3>
-              <p>Total Orders Today</p>
-              <div class="change positive">↗ +12% from yesterday</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon revenue">💰</div>
-              <h3>₱45,680</h3>
-              <p>Today's Revenue</p>
-              <div class="change positive">↗ +8.5% from yesterday</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon customers">👥</div>
-              <h3>1,847</h3>
-              <p>Active Customers</p>
-              <div class="change positive">↗ +15% this week</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon dishes">🍜</div>
-              <h3>156</h3>
-              <p>Menu Items</p>
-              <div class="change negative">↘ -2 items this week</div>
-            </div>
-          </div>
-          <!-- Data Tables -->
-          <div class="data-tables">
-            <!-- Recent Orders -->
-            <div class="table-card">
-              <div class="table-header">
-                <h3>Recent Orders</h3>
-                <button class="view-all-btn">View All</button>
-              </div>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>#FL2025015</td>
-                    <td>Maria Santos</td>
-                    <td>
-                      <span class="status-badge status-processing"
-                        >Processing</span
-                      >
-                    </td>
-                    <td>₱1,250</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#FL2025014</td>
-                    <td>John Cruz</td>
-                    <td>
-                      <span class="status-badge status-completed"
-                        >Completed</span
-                      >
-                    </td>
-                    <td>₱890</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#FL2025013</td>
-                    <td>Ana Rodriguez</td>
-                    <td>
-                      <span class="status-badge status-pending">Pending</span>
-                    </td>
-                    <td>₱2,150</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#FL2025012</td>
-                    <td>David Kim</td>
-                    <td>
-                      <span class="status-badge status-completed"
-                        >Completed</span
-                      >
-                    </td>
-                    <td>₱750</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#FL2025011</td>
-                    <td>Lisa Wong</td>
-                    <td>
-                      <span class="status-badge status-cancelled"
-                        >Cancelled</span
-                      >
-                    </td>
-                    <td>₱680</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Low Stock Alerts -->
-            <div class="table-card">
-              <div class="table-header">
-                <h3>Inventory Alerts</h3>
-                <button class="view-all-btn">Manage</button>
-              </div>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Current Stock</th>
-                    <th>Priority</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Soy Sauce</td>
-                    <td>5 bottles</td>
-                    <td><span class="priority-high">High</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                  <tr>
-                    <td>Rice Noodles</td>
-                    <td>12 packs</td>
-                    <td><span class="priority-medium">Medium</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                  <tr>
-                    <td>Sesame Oil</td>
-                    <td>8 bottles</td>
-                    <td><span class="priority-medium">Medium</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                  <tr>
-                    <td>Black Beans</td>
-                    <td>3 cans</td>
-                    <td><span class="priority-high">High</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                  <tr>
-                    <td>Chicken Stock</td>
-                    <td>15 cartons</td>
-                    <td><span class="priority-low">Low</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <!-- Main Dashboard Content -->
+    <div id="dashboard-content" style="display: none">
+      <header class="admin-header">
+        <div class="admin-logo">
+          <h1><a href="Homepage.html" class="logo-link">FoodLoftPH</a></h1>
+          <span>Admin Dashboard</span>
         </div>
-      </main>
+        <div class="admin-user">
+          <img
+            id="admin-avatar"
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+            alt="Admin"
+          />
+          <div class="admin-user-info">
+            <span class="admin-username" id="admin-username">Admin User</span>
+            <span class="admin-role" id="admin-role">Administrator</span>
+          </div>
+          <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <div class="dashboard-container">
+        <nav class="sidebar">
+          <ul class="sidebar-menu">
+            <li>
+              <a href="admin.html" class="active"
+                ><span class="icon">📊</span>Dashboard</a
+              >
+            </li>
+            <li>
+              <a href="order-management.html"
+                ><span class="icon">📋</span>Orders</a
+              >
+            </li>
+            <li>
+              <a href="menu-management.html"
+                ><span class="icon">🍜</span>Menu Management</a
+              >
+            </li>
+          </ul>
+        </nav>
+
+        <main class="main-content">
+          <!-- Welcome Message -->
+          <div class="welcome-message">
+            <h3 id="welcome-text">Welcome back, Admin!</h3>
+            <p>Here's your restaurant's performance overview</p>
+          </div>
+
+          <!-- Dashboard Content -->
+          <div id="dashboard-content-inner" class="tab-content active">
+            <div class="page-title">
+              <h2>Dashboard Overview</h2>
+              <p>Monitor your restaurant's key metrics and recent activity.</p>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+              <h3>Quick Actions</h3>
+              <div class="actions-grid">
+                <button
+                  class="quick-action-btn"
+                  onclick="redirectToPage('menu-management.html')"
+                >
+                  <span>➕</span>Add New Dish
+                </button>
+                <button
+                  class="quick-action-btn"
+                  onclick="redirectToPage('order-management.html')"
+                >
+                  <span>📦</span>Process Orders
+                </button>
+              </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="icon orders">📋</div>
+                <h3 id="total-orders">-</h3>
+                <p>Total Orders Today</p>
+                <div class="change" id="orders-change">Loading...</div>
+              </div>
+              <div class="stat-card">
+                <div class="icon revenue">💰</div>
+                <h3 id="total-revenue">₱-</h3>
+                <p>Today's Revenue</p>
+                <div class="change" id="revenue-change">Loading...</div>
+              </div>
+              <div class="stat-card">
+                <div class="icon customers">👥</div>
+                <h3 id="active-customers">-</h3>
+                <p>Active Customers</p>
+                <div class="change" id="customers-change">Loading...</div>
+              </div>
+              <div class="stat-card">
+                <div class="icon dishes">🍜</div>
+                <h3 id="menu-items">-</h3>
+                <p>Menu Items</p>
+                <div class="change" id="dishes-change">Loading...</div>
+              </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+              <!-- Recent Orders -->
+              <div class="chart-card">
+                <h3>Recent Orders</h3>
+                <div id="recent-orders-container">
+                  <div class="loading-content">
+                    <div class="mini-spinner"></div>
+                    <span>Loading recent orders...</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Popular Dishes -->
+              <div class="chart-card">
+                <h3>Popular Dishes</h3>
+                <div id="popular-dishes-container">
+                  <div class="loading-content">
+                    <div class="mini-spinner"></div>
+                    <span>Loading popular dishes...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Orders Table -->
+            <div class="data-tables">
+              <div class="table-card">
+                <div class="table-header">
+                  <h3>All Recent Orders</h3>
+                  <button
+                    class="view-all-btn"
+                    onclick="redirectToPage('order-management.html')"
+                  >
+                    View All
+                  </button>
+                </div>
+                <div id="orders-table-container">
+                  <div class="loading-content">
+                    <div class="mini-spinner"></div>
+                    <span>Loading orders table...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
 
     <script>
-      // Quick action buttons
-      document.querySelectorAll(".quick-action-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const action = this.textContent.trim();
-          alert(`${action} functionality would be implemented here!`);
-        });
-      });
+      // Global variables
+      let dashboardData = {
+        stats: {},
+        recentOrders: [],
+        popularDishes: [],
+      };
 
-      // Action buttons in tables
-      document.querySelectorAll(".action-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const action = this.textContent;
-          const row = this.closest("tr");
-          const id = row.querySelector("td:first-child").textContent;
-          alert(`${action} action for ${id}`);
-        });
-      });
+      // Authentication and Access Control
+      function checkAdminAccess() {
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        const user = JSON.parse(localStorage.getItem("user"));
 
-      // View all buttons
-      document.querySelectorAll(".view-all-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const section =
-            this.closest(".table-card").querySelector("h3").textContent;
-          alert(`Opening detailed view for ${section}`);
-        });
-      });
+        // Show loading spinner initially
+        document.getElementById("loading-spinner").style.display = "block";
 
-      // Logout button
-      document
-        .querySelector(".logout-btn")
-        .addEventListener("click", function () {
-          if (confirm("Are you sure you want to logout?")) {
-            alert("Logout functionality would be implemented here!");
-            // window.location.href = 'login.html';
+        // Simulate checking process
+        setTimeout(() => {
+          document.getElementById("loading-spinner").style.display = "none";
+
+          if (!isLoggedIn || !user) {
+            showAccessDenied();
+            return false;
           }
-        });
 
-      // Simulate real-time updates
-      function updateStats() {
-        const orderCount = document.querySelector(".stat-card h3");
-        if (orderCount) {
-          const current = parseInt(orderCount.textContent);
-          const newCount = current + Math.floor(Math.random() * 3);
-          orderCount.textContent = newCount;
+          if (user.role !== "admin") {
+            showAccessDenied();
+            return false;
+          }
+
+          showDashboard(user);
+          return true;
+        }, 1000);
+      }
+
+      function showAccessDenied() {
+        document.getElementById("access-denied").style.display = "block";
+        document.getElementById("dashboard-content").style.display = "none";
+      }
+
+      function showDashboard(user) {
+        document.getElementById("access-denied").style.display = "none";
+        document.getElementById("dashboard-content").style.display = "block";
+
+        // Update user information in header
+        updateUserInfo(user);
+
+        // Load dashboard data
+        loadDashboardData();
+      }
+
+      function updateUserInfo(user) {
+        const usernameElement = document.getElementById("admin-username");
+        const welcomeElement = document.getElementById("welcome-text");
+        const avatarElement = document.getElementById("admin-avatar");
+
+        if (usernameElement && user.username) {
+          usernameElement.textContent = user.username;
+        }
+
+        if (welcomeElement && user.username) {
+          welcomeElement.textContent = `Welcome back, ${user.username}!`;
+        }
+
+        if (avatarElement && user.avatar) {
+          avatarElement.src = `http://localhost:3000/uploads/${user.avatar}`;
+          avatarElement.onerror = function () {
+            this.src =
+              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face";
+          };
         }
       }
 
-      // Update stats every 30 seconds (simulation)
-      setInterval(updateStats, 30000);
-
-      // Add loading states for better UX
-      function showLoading(element) {
-        element.style.opacity = "0.6";
-        element.style.pointerEvents = "none";
+      // API Functions
+      async function fetchTodayStats() {
+        try {
+          const response = await fetch(
+            "http://localhost:3000/admin/orders/stats/today"
+          );
+          if (!response.ok) throw new Error("Failed to fetch stats");
+          return await response.json();
+        } catch (error) {
+          return null;
+        }
       }
 
-      function hideLoading(element) {
-        element.style.opacity = "1";
-        element.style.pointerEvents = "auto";
+      async function fetchMenuStats() {
+        try {
+          const response = await fetch(
+            "http://localhost:3000/admin/menu-stats"
+          ); // Changed URL
+          if (!response.ok) throw new Error("Failed to fetch menu stats");
+          return await response.json();
+        } catch (error) {
+          console.error("Error fetching menu stats:", error);
+          return {
+            total_items: 0,
+            available_items: 0,
+            unavailable_items: 0,
+            average_price: 0,
+            highest_price: 0,
+            lowest_price: 0,
+          };
+        }
       }
+      async function fetchRecentOrders() {
+        try {
+          const response = await fetch("http://localhost:3000/admin/orders");
+          if (!response.ok) throw new Error("Failed to fetch orders");
+          const orders = await response.json();
+          return orders.slice(0, 10); // Get latest 10 orders
+        } catch (error) {
+          return null;
+        }
+      }
+
+      async function fetchPopularDishes() {
+        try {
+          // Get orders with their items to calculate popularity
+          const response = await fetch("http://localhost:3000/admin/orders");
+          if (!response.ok)
+            throw new Error("Failed to fetch orders for popularity");
+
+          const orders = await response.json();
+          const dishCount = {};
+
+          // Calculate dish popularity from recent orders
+          for (const order of orders) {
+            const orderDetails = await fetch(
+              `http://localhost:3000/admin/orders/${order.order_id}`
+            );
+            if (orderDetails.ok) {
+              const orderData = await orderDetails.json();
+              for (const item of orderData.items) {
+                if (dishCount[item.food_id]) {
+                  dishCount[item.food_id].count += item.quantity;
+                } else {
+                  dishCount[item.food_id] = {
+                    name: item.name,
+                    count: item.quantity,
+                    image: item.image,
+                  };
+                }
+              }
+            }
+          }
+
+          // Sort by popularity and get top 5
+          const popularDishes = Object.entries(dishCount)
+            .map(([id, data]) => ({ food_id: id, ...data }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+          return popularDishes;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      async function fetchUserCount() {
+        try {
+          const response = await fetch(
+            "http://localhost:3000/admin/users/customers-count"
+          );
+          if (!response.ok) throw new Error("Failed to fetch customer count");
+          const data = await response.json();
+          return data.customers || 0;
+        } catch (error) {
+          return 0;
+        }
+      }
+
+      // Dashboard Data Loading
+      async function loadDashboardData() {
+        try {
+          // Load all data in parallel
+          const [
+            todayStats,
+            menuStats,
+            recentOrders,
+            popularDishes,
+            userCount,
+          ] = await Promise.all([
+            fetchTodayStats(),
+            fetchMenuStats(),
+            fetchRecentOrders(),
+            fetchPopularDishes(),
+            fetchUserCount(),
+          ]);
+
+          // Update stats cards
+          updateStatsCards(todayStats, menuStats, userCount);
+
+          // Update recent orders
+          updateRecentOrders(recentOrders);
+
+          // Update popular dishes
+          updatePopularDishes(popularDishes);
+
+          // Update orders table
+          updateOrdersTable(recentOrders);
+        } catch (error) {
+          showError("Failed to load dashboard data");
+        }
+      }
+
+      function updateStatsCards(todayStats, menuStats, userCount) {
+        // Total Orders Today
+        const totalOrders = todayStats?.total_orders || 0;
+        document.getElementById("total-orders").textContent = totalOrders;
+        document.getElementById(
+          "orders-change"
+        ).textContent = `${totalOrders} orders today`;
+        document.getElementById("orders-change").className = "change positive";
+
+        // Today's Revenue
+        const totalRevenue = todayStats?.total_revenue || 0;
+        document.getElementById(
+          "total-revenue"
+        ).textContent = `₱${totalRevenue.toLocaleString()}`;
+        document.getElementById(
+          "revenue-change"
+        ).textContent = `₱${totalRevenue.toLocaleString()} today`;
+        document.getElementById("revenue-change").className = "change positive";
+
+        // Active Customers
+        document.getElementById("active-customers").textContent =
+          userCount.toLocaleString();
+        document.getElementById(
+          "customers-change"
+        ).textContent = `${userCount} registered users`;
+        document.getElementById("customers-change").className =
+          "change positive";
+
+        // Menu Items
+        const menuItems = menuStats?.total_items || 0;
+        const availableItems = menuStats?.available_items || 0;
+        document.getElementById("menu-items").textContent = menuItems;
+        document.getElementById(
+          "dishes-change"
+        ).textContent = `${availableItems} available`;
+        document.getElementById("dishes-change").className =
+          availableItems < menuItems ? "change negative" : "change positive";
+      }
+
+      function updateRecentOrders(orders) {
+        const container = document.getElementById("recent-orders-container");
+
+        if (!orders || orders.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">📋</div>
+              <h4>No Recent Orders</h4>
+              <p>No orders found for today.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const recentOrdersHTML = orders
+          .slice(0, 5)
+          .map(
+            (order) => `
+          <div class="dish-item">
+            <div class="dish-rank">#${order.order_id}</div>
+            <div class="dish-info">
+              <div class="dish-name">${
+                order.customer_name || "Unknown Customer"
+              }</div>
+              <div class="dish-stats">
+                <span class="status-badge status-${order.status}">${
+              order.status
+            }</span>
+                • ₱${parseFloat(order.total_price).toFixed(2)}
+                • ${new Date(order.order_date).toLocaleTimeString()}
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        container.innerHTML = recentOrdersHTML;
+      }
+
+      function updatePopularDishes(dishes) {
+        const container = document.getElementById("popular-dishes-container");
+
+        if (!dishes || dishes.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">🍽️</div>
+              <h4>No Popular Dishes</h4>
+              <p>No order data available to calculate popularity.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const popularDishesHTML = dishes
+          .map(
+            (dish, index) => `
+          <div class="dish-item">
+            <img 
+              src="${
+                dish.image
+                  ? `http://localhost:3000/uploads/${dish.image}`
+                  : "/Kikiam.jpg"
+              }" 
+              alt="${dish.name}" 
+              class="dish-image"
+              onerror="this.src='/Kikiam.jpg'"
+            />
+            <div class="dish-info">
+              <div class="dish-name">${dish.name}</div>
+              <div class="dish-stats">${dish.count} orders</div>
+            </div>
+            <div class="dish-rank">${index + 1}</div>
+          </div>
+        `
+          )
+          .join("");
+
+        container.innerHTML = `<div class="popular-dishes-list">${popularDishesHTML}</div>`;
+      }
+
+      function updateOrdersTable(orders) {
+        const container = document.getElementById("orders-table-container");
+
+        if (!orders || orders.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">📋</div>
+              <h4>No Orders Found</h4>
+              <p>No orders available to display.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orders
+                .slice(0, 10)
+                .map(
+                  (order) => `
+                <tr>
+                  <td>#${order.order_id}</td>
+                  <td>${order.customer_name || "Unknown"}</td>
+                  <td>${new Date(order.order_date).toLocaleDateString()}</td>
+                  <td>
+                    <span class="status-badge status-${order.status}">
+                      ${
+                        order.status.charAt(0).toUpperCase() +
+                        order.status.slice(1)
+                      }
+                    </span>
+                  </td>
+                  <td>₱${parseFloat(order.total_price).toFixed(2)}</td>
+                  <td>
+                    <button class="action-btn" onclick="viewOrder(${
+                      order.order_id
+                    })">View</button>
+                    <button class="action-btn secondary" onclick="updateOrderStatus(${
+                      order.order_id
+                    })">Update</button>
+                  </td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        `;
+
+        container.innerHTML = tableHTML;
+      }
+
+      function showError(message) {
+        const containers = [
+          "recent-orders-container",
+          "popular-dishes-container",
+          "orders-table-container",
+        ];
+
+        containers.forEach((id) => {
+          const container = document.getElementById(id);
+          if (container) {
+            container.innerHTML = `
+              <div class="error-message">
+                <h4>Error</h4>
+                <p>${message}</p>
+                <button class="action-btn" onclick="loadDashboardData()">Try Again</button>
+              </div>
+            `;
+          }
+        });
+      }
+
+      // Navigation Functions
+      function redirectToPage(page) {
+        window.location.href = page;
+      }
+
+      function viewOrder(orderId) {
+        window.location.href = `order-management.html?order=${orderId}`;
+      }
+
+      function updateOrderStatus(orderId) {
+        window.location.href = `order-management.html?edit=${orderId}`;
+      }
+
+      // Logout Function
+      function logout() {
+        if (confirm("Are you sure you want to logout?")) {
+          // Show loading
+          const logoutBtn = document.getElementById("logout-btn");
+          const originalText = logoutBtn.textContent;
+          logoutBtn.textContent = "Logging out...";
+          logoutBtn.disabled = true;
+
+          // Clear localStorage first
+          localStorage.removeItem("user");
+          localStorage.removeItem("isLoggedIn");
+
+          // Call logout endpoint
+          fetch("http://localhost:3000/logout", {
+            method: "POST",
+            credentials: "same-origin",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Redirect to login page
+              window.location.href = "login.html";
+            })
+            .catch((error) => {
+              // Still redirect even if API call fails
+              window.location.href = "login.html";
+            })
+            .finally(() => {
+              // Reset button state (though page will redirect)
+              logoutBtn.textContent = originalText;
+              logoutBtn.disabled = false;
+            });
+        }
+      }
+
+      // Auto-refresh functionality
+      function startAutoRefresh() {
+        // Refresh dashboard data every 30 seconds
+        setInterval(() => {
+          loadDashboardData();
+        }, 60000);
+      }
+
+      // Utility functions
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat("en-PH", {
+          style: "currency",
+          currency: "PHP",
+        }).format(amount);
+      }
+
+      function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString("en-PH", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      // Event Listeners and Initialization
+      document.addEventListener("DOMContentLoaded", function () {
+        // Check admin access on page load
+        checkAdminAccess();
+
+        // Set up event listeners after DOM is loaded
+        setTimeout(() => {
+          // Logout button
+          const logoutBtn = document.getElementById("logout-btn");
+          if (logoutBtn) {
+            logoutBtn.addEventListener("click", logout);
+          }
+
+          // Quick action buttons
+          document.querySelectorAll(".quick-action-btn").forEach((btn) => {
+            btn.addEventListener("click", function () {
+              const text = this.textContent.trim();
+              if (text.includes("Add New Dish")) {
+                redirectToPage("menu-management.html");
+              } else if (text.includes("Process Orders")) {
+                redirectToPage("order-management.html");
+              } else {
+                alert(`${text} functionality would be implemented here!`);
+              }
+            });
+          });
+
+          // View all buttons
+          document.querySelectorAll(".view-all-btn").forEach((btn) => {
+            btn.addEventListener("click", function () {
+              redirectToPage("order-management.html");
+            });
+          });
+
+          // Start auto-refresh after initial load
+          startAutoRefresh();
+        }, 1100); // Wait for access check to complete
+      });
+
+      // Session management
+      function checkSessionTimeout() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+        if (!isLoggedIn || !user || user.role !== "admin") {
+          localStorage.removeItem("user");
+          localStorage.removeItem("isLoggedIn");
+          window.location.href = "login.html";
+        }
+      }
+
+      // Check session every 5 minutes
+      setInterval(checkSessionTimeout, 5 * 60 * 1000);
+
+      // Prevent back button after logout
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+          // Page was loaded from cache (back button)
+          checkAdminAccess();
+        }
+      });
+
+      // Handle browser back/forward navigation
+      window.addEventListener("popstate", function (event) {
+        checkAdminAccess();
+      });
+
+      // Global error handler for admin-specific errors
+      window.addEventListener("error", function (event) {
+        console.error("Admin dashboard error:", event.error);
+      });
+
+      // Handle network errors gracefully
+      window.addEventListener("online", function () {
+        loadDashboardData();
+      });
+
+      window.addEventListener("offline", function () {
+        showError("Network connection lost. Data may be outdated.");
+      });
     </script>
   </body>
 </html>
