@@ -849,6 +849,16 @@
         loadDashboardData();
       }
 
+      function getAvatarUrl(avatar) {
+        if (!avatar) return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face";
+        // If already absolute
+        if (avatar.startsWith('http')) return avatar;
+        // If stored with leading /uploads/
+        if (avatar.startsWith('/uploads/')) return `http://localhost:3000${avatar}`;
+        // Otherwise treat as filename in uploads
+        return `http://localhost:3000/uploads/${avatar}`;
+      }
+
       function updateUserInfo(user) {
         const usernameElement = document.getElementById("admin-username");
         const welcomeElement = document.getElementById("welcome-text");
@@ -862,8 +872,8 @@
           welcomeElement.textContent = `Welcome back, ${user.username}!`;
         }
 
-        if (avatarElement && user.avatar) {
-          avatarElement.src = `http://localhost:3000/uploads/${user.avatar}`;
+        if (avatarElement) {
+          avatarElement.src = getAvatarUrl(user.avatar);
           avatarElement.onerror = function () {
             this.src =
               "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face";
@@ -916,43 +926,11 @@
 
       async function fetchPopularDishes() {
         try {
-          // Get orders with their items to calculate popularity
-          const response = await fetch("http://localhost:3000/admin/orders");
-          if (!response.ok)
-            throw new Error("Failed to fetch orders for popularity");
-
-          const orders = await response.json();
-          const dishCount = {};
-
-          // Calculate dish popularity from recent orders
-          for (const order of orders) {
-            const orderDetails = await fetch(
-              `http://localhost:3000/admin/orders/${order.order_id}`
-            );
-            if (orderDetails.ok) {
-              const orderData = await orderDetails.json();
-              for (const item of orderData.items) {
-                if (dishCount[item.food_id]) {
-                  dishCount[item.food_id].count += item.quantity;
-                } else {
-                  dishCount[item.food_id] = {
-                    name: item.name,
-                    count: item.quantity,
-                    image: item.image,
-                  };
-                }
-              }
-            }
-          }
-
-          // Sort by popularity and get top 5
-          const popularDishes = Object.entries(dishCount)
-            .map(([id, data]) => ({ food_id: id, ...data }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 5);
-
-          return popularDishes;
+          const response = await fetch("http://localhost:3000/admin/dishes/popular?limit=5&days=30");
+          if (!response.ok) throw new Error("Failed to fetch popular dishes");
+          return await response.json();
         } catch (error) {
+          console.error("Error fetching popular dishes:", error);
           return null;
         }
       }
@@ -1098,27 +1076,27 @@
         }
 
         const popularDishesHTML = dishes
-          .map(
-            (dish, index) => `
-          <div class="dish-item">
-            <img 
-              src="${
-                dish.image
-                  ? `http://localhost:3000/uploads/${dish.image}`
-                  : "/Kikiam.jpg"
-              }" 
-              alt="${dish.name}" 
-              class="dish-image"
-              onerror="this.src='/Kikiam.jpg'"
-            />
-            <div class="dish-info">
-              <div class="dish-name">${dish.name}</div>
-              <div class="dish-stats">${dish.count} orders</div>
-            </div>
-            <div class="dish-rank">${index + 1}</div>
-          </div>
-        `
-          )
+          .map((dish, index) => {
+            const imgSrc = dish.image
+              ? `http://localhost:3000/uploads/${dish.image}`
+              : "/Kikiam.jpg";
+            const ordersCount = dish.total_ordered || dish.count || 0;
+            return `
+              <div class="dish-item">
+                <img 
+                  src="${imgSrc}" 
+                  alt="${dish.name}" 
+                  class="dish-image"
+                  onerror="this.src='/Kikiam.jpg'"
+                />
+                <div class="dish-info">
+                  <div class="dish-name">${dish.name}</div>
+                  <div class="dish-stats">${ordersCount} orders</div>
+                </div>
+                <div class="dish-rank">${index + 1}</div>
+              </div>
+            `;
+          })
           .join("");
 
         container.innerHTML = `<div class="popular-dishes-list">${popularDishesHTML}</div>`;

@@ -4,14 +4,23 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // ✅ Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use('/uploads', express.static('uploads')); // Serve uploaded images
+// Serve static HTML/CSS/JS from project root
+app.use(express.static(path.join(__dirname)));
+
+// Root route -> Homepage.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Homepage.html'));
+});
+// (static assets already served above)
 
 // ✅ Multer configuration for avatar & food uploads
 const storage = multer.diskStorage({
@@ -25,11 +34,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ✅ Database connection
+// Use nullish checks so empty strings from env are respected (no unwanted fallbacks)
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '_Sideswipe21',
-  database: 'foodloft_db'
+  host: process.env.DB_HOST ?? 'localhost',
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
+  user: process.env.DB_USER ?? 'root',
+  password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : 'Shijunming--0919',
+  database: process.env.DB_NAME !== undefined ? process.env.DB_NAME : 'foodloft_db',
 });
 
 db.connect(err => {
@@ -56,8 +67,8 @@ app.post('/register', upload.single('avatar'), (req, res) => {
   }
 
   const sql = `
-    INSERT INTO users (full_name, username, email, password, avatar, address, contact_number, description)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO users (full_name, username, email, password, avatar, address, contact_number, description, role)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(sql, [
@@ -68,7 +79,8 @@ app.post('/register', upload.single('avatar'), (req, res) => {
     avatar,
     address,
     contact_number,
-    description || ''
+    description || '',
+    'customer'
   ], (err) => {
     if (err) {
       console.error('❌ Registration Error:', err);
@@ -86,7 +98,7 @@ app.post('/login', (req, res) => {
     return res.status(400).json({ message: 'Email and password are required' });
   }
 
-  const sql = 'SELECT user_id, username, email FROM users WHERE email = ? AND password = ?';
+  const sql = 'SELECT user_id, username, email, role, avatar FROM users WHERE email = ? AND password = ?';
   db.query(sql, [email, password], (err, results) => {
     if (err) {
       console.error('❌ Login Error:', err);
@@ -100,6 +112,11 @@ app.post('/login', (req, res) => {
     const user = results[0];
     res.json({ message: '✅ Login successful', user });
   });
+});
+
+// ✅ Logout (stateless)
+app.post('/logout', (req, res) => {
+  res.json({ message: 'Logged out' });
 });
 
 
@@ -116,21 +133,169 @@ app.get('/menu', (req, res) => {
   });
 });
 
-// ✅ Add new food item (Admin)
-app.post('/admin/menu', upload.single('image'), (req, res) => {
-  const { name, description, price, category_id, quantity } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
-
-  if (!name || !price || !quantity) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  const sql = 'INSERT INTO food (name, description, price, image, category_id, quantity) VALUES (?, ?, ?, ?, ?, ?)';
-  db.query(sql, [name, description || '', price, image, category_id || 1, quantity], (err) => {
-    if (err) return res.status(500).json({ error: 'Failed to add food item' });
-    res.json({ message: 'Food item added successfully' });
+// ✅ Health check
+app.get('/health', (req, res) => {
+  db.query('SELECT 1 as ok', (err, results) => {
+    if (err) return res.status(500).json({ status: 'error', db: false });
+    res.json({ status: 'ok', db: true });
   });
 });
+
+// (root route already defined above)
+
+// ✅ Bootstrap DB endpoint: creates database and required tables if missing
+app.post('/bootstrap-db', async (req, res) => {
+  const dbName = process.env.DB_NAME || 'foodloft_db';
+  const adminConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
+    user: process.env.DB_USER || 'root',
+    // Respect empty password if provided
+    password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : '',
+    multipleStatements: true,
+  };
+
+  const admin = mysql.createConnection(adminConfig);
+
+  const createDatabaseSQL = `CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`;
+
+  // Minimal schema aligned with application usage
+  const schemaSQL = `
+    USE \`${dbName}\`;
+    CREATE TABLE IF NOT EXISTS users (
+      user_id INT NOT NULL AUTO_INCREMENT,
+      username VARCHAR(50) NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      email VARCHAR(100) NOT NULL,
+      full_name VARCHAR(100) NOT NULL,
+      address TEXT,
+      contact_number VARCHAR(20) DEFAULT NULL,
+      role ENUM('customer','admin') NOT NULL DEFAULT 'customer',
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      avatar VARCHAR(255) DEFAULT NULL,
+      description TEXT,
+      PRIMARY KEY (user_id),
+      UNIQUE KEY username (username),
+      UNIQUE KEY email (email)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE IF NOT EXISTS categories (
+      category_id INT NOT NULL AUTO_INCREMENT,
+      name VARCHAR(100) NOT NULL,
+      PRIMARY KEY (category_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE IF NOT EXISTS food (
+      food_id INT NOT NULL AUTO_INCREMENT,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      price DECIMAL(10,2) NOT NULL,
+      image VARCHAR(255) DEFAULT NULL,
+      category_id INT DEFAULT NULL,
+      quantity INT DEFAULT 0,
+      is_available TINYINT(1) NOT NULL DEFAULT 1,
+      PRIMARY KEY (food_id),
+      KEY category_id (category_id),
+      CONSTRAINT food_ibfk_1 FOREIGN KEY (category_id) REFERENCES categories (category_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE IF NOT EXISTS cart (
+      cart_id INT NOT NULL AUTO_INCREMENT,
+      user_id INT DEFAULT NULL,
+      food_id INT DEFAULT NULL,
+      quantity INT DEFAULT 1,
+      added_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (cart_id),
+      KEY user_id (user_id),
+      KEY food_id (food_id),
+      CONSTRAINT cart_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+      CONSTRAINT cart_ibfk_2 FOREIGN KEY (food_id) REFERENCES food (food_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE IF NOT EXISTS orders (
+      order_id INT NOT NULL AUTO_INCREMENT,
+      user_id INT NOT NULL,
+      order_date DATETIME NULL,
+      status ENUM('pending','preparing','delivered','cancelled') NOT NULL DEFAULT 'pending',
+      total_price DECIMAL(10,2) NULL,
+      delivery_address VARCHAR(255) NULL,
+      first_name VARCHAR(100) NOT NULL,
+      last_name VARCHAR(100) NOT NULL,
+      company_name VARCHAR(100) DEFAULT NULL,
+      country_region VARCHAR(100) NOT NULL,
+      street_address TEXT NOT NULL,
+      city VARCHAR(100) NOT NULL,
+      state VARCHAR(100) NOT NULL,
+      zip VARCHAR(20) NOT NULL,
+      phone_number VARCHAR(20) NOT NULL,
+      email_address VARCHAR(100) NOT NULL,
+      additional_info TEXT,
+      payment_method VARCHAR(50) NOT NULL,
+      total_amount DECIMAL(10,2) NOT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (order_id),
+      KEY user_id (user_id),
+      CONSTRAINT orders_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE IF NOT EXISTS order_items (
+      order_item_id INT NOT NULL AUTO_INCREMENT,
+      order_id INT NOT NULL,
+      food_id INT NOT NULL,
+      quantity INT NOT NULL,
+      price DECIMAL(10,2) NOT NULL,
+      PRIMARY KEY (order_item_id),
+      KEY order_id (order_id),
+      KEY food_id (food_id),
+      CONSTRAINT order_items_ibfk_1 FOREIGN KEY (order_id) REFERENCES orders (order_id) ON DELETE CASCADE,
+      CONSTRAINT order_items_ibfk_2 FOREIGN KEY (food_id) REFERENCES food (food_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    CREATE TABLE IF NOT EXISTS reviews (
+      review_id INT NOT NULL AUTO_INCREMENT,
+      user_id INT NOT NULL,
+      user_name VARCHAR(255) NOT NULL,
+      branch VARCHAR(100) NOT NULL,
+      rating INT NOT NULL,
+      review_text TEXT NOT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (review_id),
+      KEY user_id (user_id),
+      CONSTRAINT reviews_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+    -- Seed a default category if none exist
+    INSERT INTO categories (name)
+    SELECT 'Chinese Food' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM categories);
+  `;
+
+  admin.query(createDatabaseSQL, (err) => {
+    if (err) {
+      console.error('❌ Failed to create database:', err);
+      admin.end();
+      return res.status(500).json({ error: 'Failed to create database', details: err.message });
+    }
+    admin.query(schemaSQL, (err2) => {
+      admin.end();
+      if (err2) {
+        console.error('❌ Failed to initialize schema:', err2);
+        return res.status(500).json({ error: 'Failed to initialize schema', details: err2.message });
+      }
+      // Try to reconnect main DB now that the database exists
+      db.connect((reErr) => {
+        if (reErr) {
+          console.error('⚠️ Reconnect after bootstrap failed:', reErr.message);
+          return res.json({ success: true, message: `Database ${dbName} bootstrapped successfully, but reconnect failed. Restart the server to apply.`, reconnect: false });
+        }
+        console.log('✅ Reconnected to MySQL after bootstrap.');
+        res.json({ success: true, message: `Database ${dbName} bootstrapped successfully.`, reconnect: true });
+      });
+    });
+  });
+});
+
+// (Removed legacy /admin/menu-legacy route; using modern /admin/menu endpoints)
 
 
 // ============================
@@ -240,25 +405,31 @@ app.post('/checkout', (req, res) => {
     email_address,
     additional_info,
     payment_method,
-    cartItems, // array of items: { food_id, quantity, price }
-    total_amount
+    cartItems // array of items: { food_id, quantity, price }
   } = req.body;
 
   if (!user_id || !first_name || !last_name || !country_region || !street_address || !city || !state || !zip || !phone_number || !email_address || !payment_method || !cartItems || cartItems.length === 0) {
     return res.status(400).json({ message: 'Please fill out all required fields and include cart items.' });
   }
 
+  // Compute total server-side for integrity
+  const serverTotal = cartItems.reduce((sum, it) => sum + (Number(it.price) * Number(it.quantity)), 0);
+  const delivery_address = [street_address, city, state, zip, country_region].filter(Boolean).join(', ');
+
   const orderQuery = `
     INSERT INTO orders (
-      user_id, first_name, last_name, company_name, country_region, street_address,
-      city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      user_id, order_date, status, total_price, delivery_address,
+      first_name, last_name, company_name, country_region, street_address,
+      city, state, zip, phone_number, email_address, additional_info,
+      payment_method, total_amount, created_at
+    ) VALUES (?, NOW(), 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const orderValues = [
-    user_id, first_name, last_name, company_name, country_region, street_address,
-    city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount,
-    new Date() // `created_at`
+    user_id, serverTotal, delivery_address,
+    first_name, last_name, company_name || null, country_region, street_address,
+    city, state, zip, phone_number, email_address, additional_info || null,
+    payment_method, serverTotal
   ];
 
   db.query(orderQuery, orderValues, (orderErr, orderResult) => {
@@ -281,17 +452,15 @@ app.post('/checkout', (req, res) => {
         return res.status(500).json({ message: 'Failed to save order items' });
       }
 
-    });
+      const clearCartQuery = 'DELETE FROM cart WHERE user_id = ?';
+      db.query(clearCartQuery, [user_id], (clearErr) => {
+        if (clearErr) {
+          console.error('Failed to clear cart:', clearErr);
+          return res.status(500).json({ message: 'Order placed, but failed to clear cart.' });
+        }
 
-    
-    const clearCartQuery = 'DELETE FROM cart WHERE user_id = ?';
-    db.query(clearCartQuery, [user_id], (clearErr) => {
-      if (clearErr) {
-        console.error('Failed to clear cart:', clearErr);
-        return res.status(500).json({ message: 'Order placed, but failed to clear cart.' });
-      }
-
-      return res.status(200).json({ message: '✅ Order placed successfully!' });
+        return res.status(200).json({ message: '✅ Order placed successfully!' });
+      });
     });
   });
 });
@@ -507,7 +676,7 @@ app.delete("/orders/:order_id", (req, res) => {
   const userId = req.query.user_id; // Get from query parameter or JWT in production
 
   // First verify the order belongs to the user
-  const verifySql = "SELECT user_id FROM orders WHERE order_id = ?";
+  const verifySql = "SELECT user_id, status FROM orders WHERE order_id = ?";
   db.query(verifySql, [orderId], (err, results) => {
     if (err) {
       return res.status(500).json({ error: "Database error" });
@@ -927,6 +1096,63 @@ app.put("/admin/menu/bulk-update", (req, res) => {
             message: `Successfully updated prices for ${items.length} items`,
             updated_count: totalAffected,
           });
+        });
+      })
+      .catch((error) => {
+        db.rollback(() => {
+          console.error("Bulk update error:", error);
+          res.status(500).json({ error: "Failed to update prices" });
+        });
+      });
+  });
+});
+
+// Alias route to support alternative frontend path for bulk price update
+app.put("/admin/menu/bulk-price-update", (req, res) => {
+  const { items } = req.body; // Array of {food_id, price}
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: "Items array is required" });
+  }
+
+  for (const item of items) {
+    if (!item.food_id || !item.price || isNaN(parseFloat(item.price))) {
+      return res.status(400).json({ error: "Each item must have food_id and valid price" });
+    }
+  }
+
+  db.beginTransaction((err) => {
+    if (err) {
+      console.error("Transaction error:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    const updatePromises = items.map((item) => {
+      return new Promise((resolve, reject) => {
+        const sql = "UPDATE food SET price = ? WHERE food_id = ?";
+        db.query(sql, [parseFloat(item.price), item.food_id], (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        });
+      });
+    });
+
+    Promise.all(updatePromises)
+      .then((results) => {
+        const totalAffected = results.reduce((sum, r) => sum + r.affectedRows, 0);
+        if (totalAffected !== items.length) {
+          return db.rollback(() => {
+            res.status(400).json({ error: `Only ${totalAffected} out of ${items.length} items were updated` });
+          });
+        }
+        db.commit((err) => {
+          if (err) {
+            return db.rollback(() => {
+              console.error("Commit error:", err);
+              res.status(500).json({ error: "Database error" });
+            });
+          }
+          res.json({ success: true, message: `Successfully updated prices for ${items.length} items`, updated_count: totalAffected });
         });
       })
       .catch((error) => {

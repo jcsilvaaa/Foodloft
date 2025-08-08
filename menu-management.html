@@ -1017,6 +1017,13 @@
         return true;
       }
 
+      function getAvatarUrl(avatar) {
+        if (!avatar) return "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face";
+        if (avatar.startsWith('http')) return avatar;
+        if (avatar.startsWith('/uploads/')) return `http://localhost:3000${avatar}`;
+        return `http://localhost:3000/uploads/${avatar}`;
+      }
+
       function updateUserInfo(user) {
         const usernameElement = document.getElementById("admin-username");
         const avatarElement = document.getElementById("admin-avatar");
@@ -1025,8 +1032,8 @@
           usernameElement.textContent = user.username;
         }
 
-        if (avatarElement && user.avatar) {
-          avatarElement.src = `http://localhost:3000/uploads/${user.avatar}`;
+        if (avatarElement) {
+          avatarElement.src = getAvatarUrl(user.avatar);
           avatarElement.onerror = function () {
             this.src =
               "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face";
