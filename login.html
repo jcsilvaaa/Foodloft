@@ -51,8 +51,9 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("DOM loaded.");
 
     // ✅ Auto login if Remember Me is enabled
-    if (localStorage.getItem("isLoggedIn") === "true") {
-        window.location.href = "Homepage.html";
+    if (localStorage.getItem("isLoggedIn") === "true" && localStorage.getItem("user")) {
+        const user = JSON.parse(localStorage.getItem("user"));
+        redirectToRolePage(user.role);
         return;
     }
 
@@ -83,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert("✅ Login successful!");
                     localStorage.setItem("user", JSON.stringify(data.user));
                     localStorage.setItem("isLoggedIn", rememberMe ? "true" : "false");
-                    window.location.href = "Homepage.html";
+                    redirectToRolePage(data.user.role);
                 } else {
                     alert("❌ " + data.message);
                 }
@@ -92,6 +93,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("An error occurred. Please try again.");
             }
         });
+    }
+
+    // ✅ Helper function to redirect based on user role
+    function redirectToRolePage(role) {
+        if (role === "admin") {
+            window.location.href = "admin.html";
+        } else if (role === "customer") {
+            window.location.href = "Homepage.html";
+        } else {
+            alert("Unknown user role.");
+        }
     }
 });
 </script>

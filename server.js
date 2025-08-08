@@ -28,7 +28,7 @@ const upload = multer({ storage });
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '_Sideswipe21',
+  password: 'ccinfom123',
   database: 'foodloft_db'
 });
 
@@ -78,15 +78,15 @@ app.post('/register', upload.single('avatar'), (req, res) => {
   });
 });
 
-// ✅ Login user
+// ✅ Login Route with role-based redirect
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required' });
-  }
+  } 
 
-  const sql = 'SELECT user_id, username, email FROM users WHERE email = ? AND password = ?';
+  const sql = 'SELECT user_id, username, email, role FROM users WHERE email = ? AND password = ?';
   db.query(sql, [email, password], (err, results) => {
     if (err) {
       console.error('❌ Login Error:', err);
@@ -98,7 +98,22 @@ app.post('/login', (req, res) => {
     }
 
     const user = results[0];
-    res.json({ message: '✅ Login successful', user });
+
+    // Redirect based on role
+    let redirectTo = '';
+    if (user.role === 'admin') {
+      redirectTo = '/admin.html';
+    } else if (user.role === 'customer') {
+      redirectTo = '/homepage.html';
+    } else {
+      return res.status(403).json({ message: 'Unknown user role' });
+    }
+
+    res.json({
+      message: '✅ Login successful',
+      user,
+      redirectTo
+    });
   });
 });
 
