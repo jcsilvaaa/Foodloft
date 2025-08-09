@@ -42,6 +42,15 @@ db.connect(err => {
   }
 });
 
+// ============================
+// ✅ ROOT ROUTE
+// ============================
+
+// ✅ Serve homepage at root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Homepage.html'));
+});
+
 
 // ============================
 // ✅ AUTH ROUTES
@@ -252,13 +261,13 @@ app.post('/checkout', (req, res) => {
   const orderQuery = `
     INSERT INTO orders (
       user_id, first_name, last_name, company_name, country_region, street_address,
-      city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount, order_status, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const orderValues = [
     user_id, first_name, last_name, company_name, country_region, street_address,
-    city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount,
+    city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount, 'pending',
     new Date() // `created_at`
   ];
 
@@ -337,6 +346,166 @@ app.get('/reviews/:branch', (req, res) => {
       return res.status(500).json({ message: 'Failed to fetch reviews' });
     }
     res.status(200).json(results);
+  });
+});
+
+// ============================
+// ✅ ADMIN ORDER MANAGEMENT ROUTES
+// ============================
+
+// Test endpoint to check database structure
+app.get('/api/db-test', (req, res) => {
+  // Check if order_items table exists first
+  db.query('SHOW TABLES', (err, tables) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error', details: err.message });
+    }
+    
+    const tableNames = tables.map(t => t[Object.keys(t)[0]]);
+    
+    if (!tableNames.includes('order_items')) {
+      return res.json({
+        message: 'order_items table does not exist',
+        available_tables: tableNames,
+        orders_columns: 'Will check orders table structure...'
+      });
+    }
+    
+    // If order_items exists, get its structure
+    Promise.all([
+      new Promise((resolve, reject) => {
+        db.query('SHOW COLUMNS FROM orders', (err, results) => {
+          if (err) reject(err);
+          else resolve({ table: 'orders', columns: results });
+        });
+      }),
+      new Promise((resolve, reject) => {
+        db.query('SHOW COLUMNS FROM order_items', (err, results) => {
+          if (err) reject(err);
+          else resolve({ table: 'order_items', columns: results });
+        });
+      })
+    ])
+    .then(results => {
+      res.json({
+        available_tables: tableNames,
+        table_structures: results
+      });
+    })
+    .catch(err => {
+      res.status(500).json({ error: 'Database error', details: err.message });
+    });
+  });
+});
+
+// Get all orders (for order history) - using actual order_status column
+app.get('/api/orders', (req, res) => {
+  const sql = `
+    SELECT 
+      o.order_id,
+      o.user_id,
+      o.created_at as order_date,
+      o.order_status as status,
+      o.total_amount as total_price,
+      CONCAT(o.street_address, ', ', o.city) as delivery_address,
+      CONCAT(o.first_name, ' ', o.last_name) as customer_name,
+      CONCAT('₱', CAST(o.total_amount AS CHAR), ' order from ', o.city) as items
+    FROM orders o
+    ORDER BY o.created_at DESC
+  `;
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching orders:', err);
+      return res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+    res.json(results);
+  });
+});
+
+
+
+// Get sales data
+app.get('/api/sales', (req, res) => {
+  const salesQueries = [
+    // Total sales
+    'SELECT SUM(total_amount) as total_sales FROM orders',
+    
+    // Monthly sales (current month)
+    `SELECT SUM(total_amount) as monthly_sales 
+     FROM orders 
+     WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) 
+     AND YEAR(created_at) = YEAR(CURRENT_DATE())`,
+    
+    // Total completed orders
+    'SELECT COUNT(*) as total_orders FROM orders',
+    
+    // Recent transactions
+    `SELECT 
+       o.order_id,
+       CONCAT(o.first_name, ' ', o.last_name) as customer_name,
+       o.created_at as order_date,
+       o.total_amount as total_price
+     FROM orders o
+     ORDER BY o.created_at DESC
+     LIMIT 10`
+  ];
+  
+  Promise.all(salesQueries.map(query => {
+    return new Promise((resolve, reject) => {
+      db.query(query, (err, results) => {
+        if (err) reject(err);
+        else resolve(results);
+      });
+    });
+  }))
+  .then(([totalSales, monthlySales, totalOrders, recentTransactions]) => {
+    res.json({
+      total_sales: totalSales[0].total_sales || 0,
+      monthly_sales: monthlySales[0].monthly_sales || 0,
+      total_orders: totalOrders[0].total_orders || 0,
+      recent_transactions: recentTransactions
+    });
+  })
+  .catch(err => {
+    console.error('Error fetching sales data:', err);
+    res.status(500).json({ error: 'Failed to fetch sales data' });
+  });
+});
+
+// Add new order (manual admin order) - simplified without order_items table
+app.post('/api/orders', (req, res) => {
+  const { user_id, items, delivery_address, total_price, customer_name } = req.body;
+  
+  if (!total_price || !customer_name) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  // Parse customer name
+  const nameParts = customer_name.split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+  
+  const orderQuery = `
+    INSERT INTO orders (
+      user_id, first_name, last_name, company_name, country_region, street_address,
+      city, state, zip, phone_number, email_address, additional_info, payment_method, total_amount, order_status, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+  `;
+  
+  const orderValues = [
+    user_id || 1, firstName, lastName, '', 'Philippines', delivery_address || 'Admin Created Order',
+    'Manila', 'NCR', '1000', '09123456789', 'admin@foodloft.com', 'Created by admin', 'Cash', total_price, 'pending'
+  ];
+  
+  db.query(orderQuery, orderValues, (err, orderResult) => {
+    if (err) {
+      console.error('Error creating order:', err);
+      return res.status(500).json({ error: 'Failed to create order' });
+    }
+    
+    // For now, we'll skip adding to order_items since the table structure is unclear
+    res.json({ message: 'Order created successfully', order_id: orderResult.insertId });
   });
 });
 
