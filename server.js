@@ -12,6 +12,7 @@ const PORT = 3000;
 // ✅ Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static('uploads')); // Serve uploaded images
 
 // ✅ Multer configuration for avatar & food uploads
@@ -29,7 +30,7 @@ const upload = multer({ storage });
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'ccinfom123',
+  password: '',
   database: 'foodloft_db'
 });
 
@@ -640,5 +641,37 @@ app.delete('/api/users/:id', (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     res.json({ message: 'User deleted' });
+  });
+});
+
+app.delete('/api/food/:id', (req, res) => {
+  const foodId = req.params.id;
+
+  // Delete related order_items
+  db.query('DELETE FROM order_items WHERE food_id = ?', [foodId], (err) => {
+    if (err) {
+      console.error('Error deleting order items:', err);
+      return res.status(500).json({ error: 'Failed to delete related order items' });
+    }
+
+    // Delete related cart items
+    db.query('DELETE FROM cart WHERE food_id = ?', [foodId], (err) => {
+      if (err) {
+        console.error('Error deleting cart items:', err);
+        return res.status(500).json({ error: 'Failed to delete related cart items' });
+      }
+
+      // Finally, delete the food product
+      db.query('DELETE FROM food WHERE food_id = ?', [foodId], (err, result) => {
+        if (err) {
+          console.error('Error deleting product:', err);
+          return res.status(500).json({ error: 'Failed to delete product' });
+        }
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ error: 'Product not found' });
+        }
+        res.json({ message: 'Product deleted' });
+      });
+    });
   });
 });
