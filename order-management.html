@@ -57,6 +57,23 @@
         object-fit: cover;
       }
 
+      .admin-user-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .admin-username {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .admin-role {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+      }
+
       .logout-btn {
         background: rgba(255, 255, 255, 0.2);
         border: 1px solid rgba(255, 255, 255, 0.3);
@@ -230,6 +247,22 @@
         background: #545b62;
       }
 
+      .action-btn.success {
+        background: #28a745;
+      }
+
+      .action-btn.success:hover {
+        background: #218838;
+      }
+
+      .action-btn.danger {
+        background: #dc3545;
+      }
+
+      .action-btn.danger:hover {
+        background: #c82333;
+      }
+
       /* Table Card */
       .table-card {
         background: white;
@@ -296,7 +329,7 @@
         background: #fff3cd;
         color: #856404;
       }
-      .status-processing {
+      .status-preparing {
         background: #cce5ff;
         color: #004085;
       }
@@ -307,6 +340,49 @@
       .status-delivered {
         background: #d1ecf1;
         color: #0c5460;
+      }
+
+      /* Loading States */
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #8b0000;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px;
+        text-align: center;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .empty-state .icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
       }
 
       /* Order Details Modal */
@@ -360,6 +436,7 @@
       .order-item {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         padding: 10px 0;
         border-bottom: 1px solid #eee;
       }
@@ -381,6 +458,50 @@
       .item-price {
         font-weight: 600;
         color: #8b0000;
+      }
+
+      .food-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 15px;
+      }
+
+      .item-info {
+        display: flex;
+        align-items: center;
+        flex: 1;
+      }
+
+      /* Status Update Modal */
+      .status-modal {
+        display: none;
+        position: fixed;
+        z-index: 1001;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .status-modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+      }
+
+      .status-select {
+        width: 100%;
+        padding: 10px;
+        margin: 15px 0;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
       }
 
       /* Responsive */
@@ -420,6 +541,17 @@
         .data-table td {
           padding: 10px 15px;
         }
+
+        .admin-user {
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+        }
+
+        .admin-user-info {
+          align-items: center;
+          text-align: center;
+        }
       }
     </style>
   </head>
@@ -427,16 +559,20 @@
     <!-- Header -->
     <header class="admin-header">
       <div class="admin-logo">
-        <h1>FoodLoft</h1>
+        <h1><a href="Homepage.html" class="logo-link">FoodLoftPH</a></h1>
         <span>Admin Dashboard</span>
       </div>
       <div class="admin-user">
         <img
+          id="admin-avatar"
           src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
           alt="Admin"
         />
-        <span>Admin User</span>
-        <a href="../login.html" class="logout-btn">Logout</a>
+        <div class="admin-user-info">
+          <span class="admin-username" id="admin-username">Admin User</span>
+          <span class="admin-role" id="admin-role">Administrator</span>
+        </div>
+        <button class="logout-btn" id="logout-btn">Logout</button>
       </div>
     </header>
 
@@ -474,27 +610,27 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="icon">📋</div>
-            <h3>248</h3>
+            <h3 id="total-orders">0</h3>
             <p>Total Orders Today</p>
           </div>
           <div class="stat-card">
             <div class="icon">⏳</div>
-            <h3>42</h3>
+            <h3 id="pending-orders">0</h3>
             <p>Pending Orders</p>
           </div>
           <div class="stat-card">
             <div class="icon">🍳</div>
-            <h3>38</h3>
-            <p>In Kitchen</p>
+            <h3 id="preparing-orders">0</h3>
+            <p>Preparing Orders</p>
           </div>
           <div class="stat-card">
             <div class="icon">🚚</div>
-            <h3>24</h3>
+            <h3 id="delivering-orders">0</h3>
             <p>Out for Delivery</p>
           </div>
           <div class="stat-card">
             <div class="icon">✅</div>
-            <h3>144</h3>
+            <h3 id="completed-orders">0</h3>
             <p>Completed Today</p>
           </div>
         </div>
@@ -504,9 +640,9 @@
           <div class="filter-group">
             <label for="order-status">Status:</label>
             <select id="order-status">
-              <option value="all">All Orders</option>
+              <option value="">All Orders</option>
               <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
+              <option value="preparing">Preparing</option>
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </select>
@@ -525,172 +661,26 @@
           </div>
           <div class="filter-group">
             <label for="order-id">Order ID:</label>
-            <input type="text" id="order-id" placeholder="FL2025..." />
+            <input type="text" id="order-id" placeholder="Order ID..." />
           </div>
-          <button class="action-btn">Apply Filters</button>
-          <button class="action-btn secondary">Clear</button>
+          <button class="action-btn" onclick="applyFilters()">Apply Filters</button>
+          <button class="action-btn secondary" onclick="clearFilters()">Clear</button>
         </div>
 
         <!-- Orders Table -->
         <div class="table-card">
           <div class="table-header">
-            <h3>All Orders (248)</h3>
+            <h3 id="orders-count">All Orders (0)</h3>
             <div>
-              <button class="action-btn secondary">Export CSV</button>
-              <button class="action-btn">Print Orders</button>
+              <button class="action-btn secondary" onclick="refreshOrders()">Refresh</button>
             </div>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Order Time</th>
-                <th>Delivery Address</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>#FL2025015</td>
-                <td>Maria Santos</td>
-                <td>3 items</td>
-                <td>₱1,250</td>
-                <td>
-                  <span class="status-badge status-processing">Processing</span>
-                </td>
-                <td>2:30 PM</td>
-                <td>123 Ayala Ave, Makati</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="viewOrder('FL2025015')"
-                  >
-                    View
-                  </button>
-                  <button class="action-btn">Update</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#FL2025014</td>
-                <td>John Cruz</td>
-                <td>2 items</td>
-                <td>₱890</td>
-                <td>
-                  <span class="status-badge status-delivered">Delivered</span>
-                </td>
-                <td>1:15 PM</td>
-                <td>456 Ortigas Center, Pasig</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="viewOrder('FL2025014')"
-                  >
-                    View
-                  </button>
-                  <button class="action-btn secondary">Receipt</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#FL2025013</td>
-                <td>Ana Rodriguez</td>
-                <td>4 items</td>
-                <td>₱2,150</td>
-                <td>
-                  <span class="status-badge status-pending">Pending</span>
-                </td>
-                <td>12:45 PM</td>
-                <td>789 BGC, Taguig</td>
-                <td>
-                  <button class="action-btn">Accept</button>
-                  <button class="action-btn secondary">Decline</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#FL2025012</td>
-                <td>David Kim</td>
-                <td>1 item</td>
-                <td>₱750</td>
-                <td>
-                  <span class="status-badge status-completed">Completed</span>
-                </td>
-                <td>11:30 AM</td>
-                <td>321 Quezon City</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="viewOrder('FL2025012')"
-                  >
-                    View
-                  </button>
-                  <button class="action-btn secondary">Receipt</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#FL2025011</td>
-                <td>Lisa Wong</td>
-                <td>2 items</td>
-                <td>₱680</td>
-                <td>
-                  <span class="status-badge status-cancelled">Cancelled</span>
-                </td>
-                <td>10:15 AM</td>
-                <td>654 Manila</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="viewOrder('FL2025011')"
-                  >
-                    View
-                  </button>
-                  <button class="action-btn secondary">Refund</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#FL2025010</td>
-                <td>Michael Chen</td>
-                <td>5 items</td>
-                <td>₱1,890</td>
-                <td>
-                  <span class="status-badge status-processing">In Kitchen</span>
-                </td>
-                <td>3:15 PM</td>
-                <td>987 Alabang, Muntinlupa</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="viewOrder('FL2025010')"
-                  >
-                    View
-                  </button>
-                  <button class="action-btn">Ready</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#FL2025009</td>
-                <td>Sarah Lim</td>
-                <td>3 items</td>
-                <td>₱1,420</td>
-                <td>
-                  <span class="status-badge status-delivered">Delivered</span>
-                </td>
-                <td>9:45 AM</td>
-                <td>234 Marikina City</td>
-                <td>
-                  <button
-                    class="action-btn secondary"
-                    onclick="viewOrder('FL2025009')"
-                  >
-                    View
-                  </button>
-                  <button class="action-btn secondary">Receipt</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="orders-table-container">
+            <div class="loading">
+              <div class="spinner"></div>
+              <p>Loading orders...</p>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -700,7 +690,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 id="modalOrderId">Order Details</h3>
-          <span class="close">&times;</span>
+          <span class="close" onclick="closeOrderModal()">&times;</span>
         </div>
         <div id="orderDetails">
           <!-- Order details will be populated here -->
@@ -708,144 +698,425 @@
       </div>
     </div>
 
+    <!-- Status Update Modal -->
+    <div id="statusModal" class="status-modal">
+      <div class="status-modal-content">
+        <div class="modal-header">
+          <h3>Update Order Status</h3>
+          <span class="close" onclick="closeStatusModal()">&times;</span>
+        </div>
+        <p>Update status for order <span id="statusOrderId"></span>:</p>
+        <select id="newStatus" class="status-select">
+          <option value="pending">Pending</option>
+          <option value="preparing">Preparing</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div style="text-align: center; margin-top: 20px;">
+          <button class="action-btn" onclick="updateOrderStatus()">Update Status</button>
+          <button class="action-btn secondary" onclick="closeStatusModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <script>
-      // Filter functionality
-      document
-        .querySelectorAll(".filter-card select, .filter-card input")
-        .forEach((element) => {
-          element.addEventListener("change", function () {
-            console.log("Filter changed:", this.id, this.value);
-            // Implement filtering logic here
-          });
-        });
+      let currentOrders = [];
+      let currentFilters = {};
+      let currentOrderId = null;
 
-      // Apply filters button
-      document
-        .querySelector(".action-btn")
-        .addEventListener("click", function () {
-          alert(
-            "Filters applied! (This would filter the table in a real implementation)"
-          );
-        });
-
-      // Clear filters button
-      document
-        .querySelector(".action-btn.secondary")
-        .addEventListener("click", function () {
-          document
-            .querySelectorAll(".filter-card select, .filter-card input")
-            .forEach((element) => {
-              element.value = "";
-            });
-          alert("Filters cleared!");
-        });
-
-      // View order function
-      function viewOrder(orderId) {
-        const modal = document.getElementById("orderModal");
-        const modalOrderId = document.getElementById("modalOrderId");
-        const orderDetails = document.getElementById("orderDetails");
-
-        modalOrderId.textContent = `Order ${orderId} Details`;
-
-        // Sample order data (in real app, this would come from API)
-        const orderData = {
-          FL2025015: {
-            customer: "Maria Santos",
-            phone: "+63 912 345 6789",
-            address: "123 Ayala Ave, Makati City",
-            items: [
-              { name: "Kung Pao Chicken", qty: 1, price: 380 },
-              { name: "Yang Chow Fried Rice", qty: 2, price: 520 },
-              { name: "Hot & Sour Soup", qty: 1, price: 180 },
-            ],
-            total: 1250,
-            status: "Processing",
-            orderTime: "2:30 PM",
-            paymentMethod: "Cash on Delivery",
-          },
-          FL2025014: {
-            customer: "John Cruz",
-            phone: "+63 923 456 7890",
-            address: "456 Ortigas Center, Pasig City",
-            items: [
-              { name: "Sweet & Sour Pork", qty: 1, price: 420 },
-              { name: "Jasmine Tea", qty: 1, price: 120 },
-            ],
-            total: 890,
-            status: "Delivered",
-            orderTime: "1:15 PM",
-            paymentMethod: "GCash",
-          },
-        };
-
-        const order = orderData[orderId] || orderData["FL2025015"];
-
-        orderDetails.innerHTML = `
-                <div style="margin-bottom: 20px;">
-                    <h4 style="color: #8b0000; margin-bottom: 10px;">Customer Information</h4>
-                    <p><strong>Name:</strong> ${order.customer}</p>
-                    <p><strong>Phone:</strong> ${order.phone}</p>
-                    <p><strong>Address:</strong> ${order.address}</p>
-                    <p><strong>Order Time:</strong> ${order.orderTime}</p>
-                    <p><strong>Payment:</strong> ${order.paymentMethod}</p>
-                    <p><strong>Status:</strong> <span class="status-badge status-${order.status.toLowerCase()}">${
-          order.status
-        }</span></p>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h4 style="color: #8b0000; margin-bottom: 10px;">Order Items</h4>
-                    ${order.items
-                      .map(
-                        (item) => `
-                        <div class="order-item">
-                            <div class="item-details">
-                                <h4>${item.name}</h4>
-                                <p>Quantity: ${item.qty}</p>
-                            </div>
-                            <div class="item-price">₱${item.price}</div>
-                        </div>
-                    `
-                      )
-                      .join("")}
-                </div>
-                
-                <div style="text-align: right; padding-top: 15px; border-top: 2px solid #eee;">
-                    <h3 style="color: #8b0000;">Total: ₱${order.total}</h3>
-                </div>
-                
-                <div style="margin-top: 20px; text-align: center;">
-                    <button class="action-btn" style="margin-right: 10px;">Update Status</button>
-                    <button class="action-btn secondary">Print Receipt</button>
-                </div>
-            `;
-
-        modal.style.display = "block";
+      // Authentication check
+      function checkAdminAccess() {
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        const user = JSON.parse(localStorage.getItem("user"));
+        
+        if (!isLoggedIn || !user || user.role !== 'admin') {
+          window.location.href = "login.html";
+          return false;
+        }
+        
+        updateUserInfo(user);
+        return true;
       }
 
-      // Modal close functionality
-      document.querySelector(".close").addEventListener("click", function () {
-        document.getElementById("orderModal").style.display = "none";
+      function updateUserInfo(user) {
+        const usernameElement = document.getElementById("admin-username");
+        const avatarElement = document.getElementById("admin-avatar");
+        
+        if (usernameElement && user.username) {
+          usernameElement.textContent = user.username;
+        }
+        
+        if (avatarElement && user.avatar) {
+          avatarElement.src = `http://localhost:3000/uploads/${user.avatar}`;
+          avatarElement.onerror = function() {
+            this.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face";
+          };
+        }
+      }
+
+      // Logout function
+      function logout() {
+        if (confirm("Are you sure you want to logout?")) {
+          localStorage.removeItem("user");
+          localStorage.removeItem("isLoggedIn");
+          
+          fetch("http://localhost:3000/logout", { 
+            method: "POST",
+            credentials: "same-origin"
+          })
+          .then(() => {
+            window.location.href = "login.html";
+          })
+          .catch(() => {
+            window.location.href = "login.html";
+          });
+        }
+      }
+
+      // Fetch orders from backend
+      async function fetchOrders(filters = {}) {
+        try {
+          showLoading();
+          
+          const queryParams = new URLSearchParams();
+          if (filters.status) queryParams.append('status', filters.status);
+          if (filters.date) queryParams.append('date', filters.date);
+          if (filters.customer) queryParams.append('customer', filters.customer);
+          if (filters.orderId) queryParams.append('order_id', filters.orderId);
+          
+          const response = await fetch(`http://localhost:3000/admin/orders?${queryParams}`);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const orders = await response.json();
+          currentOrders = orders;
+          renderOrders(orders);
+          updateOrderStats(orders);
+          
+        } catch (error) {
+          console.error('Error fetching orders:', error);
+          showError('Failed to load orders. Please try again.');
+        }
+      }
+
+      // Render orders table
+      function renderOrders(orders) {
+        const container = document.getElementById('orders-table-container');
+        const ordersCount = document.getElementById('orders-count');
+        
+        ordersCount.textContent = `All Orders (${orders.length})`;
+        
+        if (orders.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">📋</div>
+              <h3>No Orders Found</h3>
+              <p>No orders match the current filters.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const tableHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Order Date</th>
+                <th>Delivery Address</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orders.map(order => `
+                <tr>
+                  <td>#${order.order_id}</td>
+                  <td>${order.customer_name || 'Unknown'}</td>
+                  <td>${order.item_count} items</td>
+                  <td>₱${parseFloat(order.total_price).toLocaleString()}</td>
+                  <td><span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></td>
+                  <td>${formatDate(order.order_date)}</td>
+                  <td>${order.delivery_address || 'N/A'}</td>
+                  <td>
+                    <button class="action-btn secondary" onclick="viewOrder(${order.order_id})">View</button>
+                    <button class="action-btn" onclick="openStatusModal(${order.order_id}, '${order.status}')">Update</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        
+        container.innerHTML = tableHTML;
+      }
+
+      // Update order statistics
+      function updateOrderStats(orders) {
+        const stats = {
+          total: orders.length,
+          pending: orders.filter(o => o.status === 'pending').length,
+          preparing: orders.filter(o => o.status === 'preparing').length,
+          delivering: orders.filter(o => o.status === 'delivering').length,
+          completed: orders.filter(o => o.status === 'delivered').length
+        };
+
+        document.getElementById('total-orders').textContent = stats.total;
+        document.getElementById('pending-orders').textContent = stats.pending;
+        document.getElementById('preparing-orders').textContent = stats.preparing;
+        document.getElementById('delivering-orders').textContent = stats.delivering;
+        document.getElementById('completed-orders').textContent = stats.completed;
+      }
+
+      // View order details
+      async function viewOrder(orderId) {
+        try {
+          const response = await fetch(`http://localhost:3000/admin/orders/${orderId}`);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const orderDetails = await response.json();
+          showOrderModal(orderDetails);
+          
+        } catch (error) {
+          console.error('Error fetching order details:', error);
+          alert('Failed to load order details. Please try again.');
+        }
+      }
+
+      // Show order modal
+      function showOrderModal(order) {
+        const modal = document.getElementById('orderModal');
+        const modalOrderId = document.getElementById('modalOrderId');
+        const orderDetails = document.getElementById('orderDetails');
+
+        modalOrderId.textContent = `Order #${order.order_id} Details`;
+
+        const itemsHTML = order.items.map(item => `
+          <div class="order-item">
+            <div class="item-info">
+              <img src="${item.image ? `http://localhost:3000/uploads/${item.image}` : '/placeholder-food.jpg'}" 
+                   alt="${item.name}" class="food-image">
+              <div class="item-details">
+                <h4>${item.name}</h4>
+                <p>${item.description || ''}</p>
+                <p>Quantity: ${item.quantity} × ₱${parseFloat(item.price).toFixed(2)}</p>
+              </div>
+            </div>
+            <div class="item-price">₱${(parseFloat(item.price) * parseInt(item.quantity)).toFixed(2)}</div>
+          </div>
+        `).join('');
+
+        orderDetails.innerHTML = `
+          <div style="margin-bottom: 20px;">
+            <h4 style="color: #8b0000; margin-bottom: 10px;">Customer Information</h4>
+            <p><strong>Name:</strong> ${order.customer_name || 'Unknown'}</p>
+            <p><strong>Email:</strong> ${order.customer_email || 'N/A'}</p>
+            <p><strong>Order Date:</strong> ${formatDate(order.order_date)}</p>
+            <p><strong>Delivery Address:</strong> ${order.delivery_address || 'N/A'}</p>
+            <p><strong>Status:</strong> <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span></p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <h4 style="color: #8b0000; margin-bottom: 10px;">Order Items</h4>
+            ${itemsHTML}
+          </div>
+          
+          <div style="text-align: right; padding-top: 15px; border-top: 2px solid #eee;">
+            <h3 style="color: #8b0000;">Total: ₱${parseFloat(order.total_price).toFixed(2)}</h3>
+          </div>
+          
+          <div style="margin-top: 20px; text-align: center;">
+            <button class="action-btn" onclick="openStatusModal(${order.order_id}, '${order.status}'); closeOrderModal();">Update Status</button>
+          </div>
+        `;
+
+        modal.style.display = 'block';
+      }
+
+      // Status update functions
+      function openStatusModal(orderId, currentStatus) {
+        currentOrderId = orderId;
+        document.getElementById('statusOrderId').textContent = `#${orderId}`;
+        document.getElementById('newStatus').value = currentStatus.toLowerCase();
+        document.getElementById('statusModal').style.display = 'block';
+      }
+
+      async function updateOrderStatus() {
+        if (!currentOrderId) return;
+        
+        const newStatus = document.getElementById('newStatus').value;
+        
+        try {
+          const response = await fetch(`http://localhost:3000/admin/orders/${currentOrderId}/status`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          alert('Order status updated successfully!');
+          closeStatusModal();
+          fetchOrders(currentFilters); // Refresh the orders
+          
+        } catch (error) {
+          console.error('Error updating order status:', error);
+          alert('Failed to update order status. Please try again.');
+        }
+      }
+
+      // Modal management
+      function closeOrderModal() {
+        document.getElementById('orderModal').style.display = 'none';
+      }
+
+      function closeStatusModal() {
+        document.getElementById('statusModal').style.display = 'none';
+        currentOrderId = null;
+      }
+
+      // Filter functions
+      function applyFilters() {
+        const filters = {
+          status: document.getElementById('order-status').value,
+          date: document.getElementById('order-date').value,
+          customer: document.getElementById('customer-search').value.trim(),
+          orderId: document.getElementById('order-id').value.trim()
+        };
+        
+        currentFilters = filters;
+        fetchOrders(filters);
+      }
+
+      function clearFilters() {
+        document.getElementById('order-status').value = '';
+        document.getElementById('order-date').value = '';
+        document.getElementById('customer-search').value = '';
+        document.getElementById('order-id').value = '';
+        
+        currentFilters = {};
+        fetchOrders();
+      }
+
+      function refreshOrders() {
+        fetchOrders(currentFilters);
+      }
+
+      // Utility functions
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+
+      function showLoading() {
+        const container = document.getElementById('orders-table-container');
+        container.innerHTML = `
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading orders...</p>
+          </div>
+        `;
+      }
+
+      function showError(message) {
+        const container = document.getElementById('orders-table-container');
+        container.innerHTML = `
+          <div class="error-message">
+            <h4>Error</h4>
+            <p>${message}</p>
+            <button class="action-btn" onclick="fetchOrders(currentFilters)" style="margin-top: 10px;">Try Again</button>
+          </div>
+        `;
+      }
+
+      // Event listeners
+      document.addEventListener('DOMContentLoaded', function() {
+        // Check admin access
+        if (!checkAdminAccess()) return;
+        
+        // Set up logout button
+        document.getElementById('logout-btn').addEventListener('click', logout);
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+          const orderModal = document.getElementById('orderModal');
+          const statusModal = document.getElementById('statusModal');
+          
+          if (event.target === orderModal) {
+            closeOrderModal();
+          }
+          
+          if (event.target === statusModal) {
+            closeStatusModal();
+          }
+        });
+        
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('order-date').value = today;
+        
+        // Load initial data
+        fetchOrders();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+          fetchOrders(currentFilters);
+        }, 30000);
       });
 
-      window.addEventListener("click", function (event) {
-        const modal = document.getElementById("orderModal");
-        if (event.target === modal) {
-          modal.style.display = "none";
+      // Handle filter changes
+      document.getElementById('order-status').addEventListener('change', function() {
+        if (this.value === '') {
+          // If "All Orders" is selected, don't auto-apply filter
+          return;
+        }
+        applyFilters();
+      });
+
+      // Handle Enter key in search inputs
+      document.getElementById('customer-search').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          applyFilters();
         }
       });
 
-      // Action buttons in table
-      document.querySelectorAll(".data-table .action-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          if (!this.onclick && this.textContent !== "View") {
-            const action = this.textContent;
-            const row = this.closest("tr");
-            const orderId = row.querySelector("td:first-child").textContent;
-            alert(`${action} action for order ${orderId}`);
-          }
-        });
+      document.getElementById('order-id').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          applyFilters();
+        }
+      });
+
+      // Handle date change
+      document.getElementById('order-date').addEventListener('change', function() {
+        if (this.value) {
+          applyFilters();
+        }
+      });
+
+      // Prevent back button after logout
+      window.addEventListener("pageshow", function(event) {
+        if (event.persisted) {
+          checkAdminAccess();
+        }
       });
     </script>
   </body>

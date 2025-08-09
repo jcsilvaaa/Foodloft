@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Sales - FoodLoft</title>
+  <link rel="stylesheet" href="admin-sales.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>🍽 FoodLoft Admin</h2>
+    </div>
+    <nav>
+      <a href="admin.html">🏠 Dashboard</a>
+      <a href="admin-products.html">📦 Products</a>
+      <a href="admin-user.html">👤 Users</a>
+      <a href="admin-order-history.html">📜 Order History</a>
+      <a href="admin-pending-orders.html">⏳ Pending Orders</a>
+      <a href="admin-sales.html" class="active">💰 Sales</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Top Header -->
+    <div class="top-header">
+      <span class="logged-in">✅ Admin Logged In</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <header>
+      <h1>Sales Overview</h1>
+      <p>Track and analyze sales performance.</p>
+    </header>
+
+    <!-- Sales Summary Cards -->
+    <section class="dashboard-cards">
+      <div class="card">
+        <h3>Total Sales</h3>
+        <p>₱120,000</p>
+      </div>
+      <div class="card">
+        <h3>Monthly Sales</h3>
+        <p>₱25,000</p>
+      </div>
+      <div class="card">
+        <h3>Orders Completed</h3>
+        <p>150</p>
+      </div>
+    </section>
+
+    <!-- Sales Table -->
+    <section class="sales-table">
+      <h2>Recent Transactions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Total Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#101</td>
+            <td>Juan Dela Cruz</td>
+            <td>2025-08-08</td>
+            <td>₱1,500</td>
+          </tr>
+          <tr>
+            <td>#102</td>
+            <td>Maria Santos</td>
+            <td>2025-08-08</td>
+            <td>₱900</td>
+          </tr>
+          <tr>
+            <td>#103</td>
+            <td>Pedro Ramirez</td>
+            <td>2025-08-07</td>
+            <td>₱2,200</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+</div>
+
+<script>
+function logout() {
+  alert("Logging out...");
+  window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

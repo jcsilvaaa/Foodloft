@@ -3,31 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FoodLoft - Home</title>
+  <title>FoodLoft - Menu</title>
   <link rel="stylesheet" href="Homepage.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <header>
     <div class="logo">
-      <h1>FoodLoft</h1>
+      <h1><a href="Homepage.html" class="logo-link">FoodLoftPH</a></h1>
     </div>
     <nav>
       <ul>
-        <li><a href="#">Home</a></li>
         <li><a href="menu.html">Menu</a></li>
-        <li><a href="cart.html">Cart</a></li>
+        <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
         <li class="user-menu">
           <img id="userAvatar" src="user.jpg" alt="User Profile" />
           <ul class="dropdown" id="user-dropdown">
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">Log Out</a></li>
+            <li><a href="User.html">Profile</a></li>
+            <li><a href="#" onclick="logout()">Log Out</a></li>
           </ul>
         </li>
       </ul>
     </nav>
   </header>
 
+  <!-- Main Content -->
   <section class="hero">
     <div class="hero-text">
       <h2 class="hero-heading">Welcome to FoodLoft!</h2>
@@ -39,14 +39,9 @@
     <h2 class="branches-heading">Featured Chinese Dishes</h2>
     <p>Our handpicked favorites to get you started.</p>
     <div class="branches-list">
-      <div class="featured-item" style="background-image: url('Kikiam.jpg');">
-        <span class="featured-label">Kikiam</span>
-      </div>
-      <div class="featured-item" style="background-image: url('CMB.jpg');">
-        <span class="featured-label">Chinese Meat Balls</span>
-      </div>
-      <div class="featured-item" style="background-image: url('Dumpling.jpg');">
-        <span class="featured-label">Dumpling</span>
+            <button class="featured-item" style="background-image: url('Kikiam.jpg');" onclick="window.location.href='Kikiam.html'"></button>
+            <button class="featured-item" style="background-image: url('CMB.jpg');" onclick="window.location.href='CMB.html'"></button>
+            <button class="featured-item" style="background-image: url('Dumpling.jpg');" onclick="window.location.href='Dumpling.html'"></button>
       </div>
     </div>
   </section>
@@ -74,5 +69,41 @@
     <p>&copy; 2025 FoodLoft. Made with flavor and tradition.</p>
     IG: @FoodLoft &nbsp; | &nbsp; FB: FoodLoft
   </footer>
+
+  <!-- ✅ Auth & Cart Script -->
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) {
+  alert("Please login first.");
+  window.location.href = "login.html";
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // ✅ Update cart count dynamically
+  updateCartCount();
+
+  // ✅ Update avatar if user uploaded one
+  const userAvatar = document.getElementById('userAvatar');
+  if (user && user.avatar) {
+    userAvatar.src = `http://localhost:3000/uploads/${user.avatar}`;
+  }
+});
+
+function updateCartCount() {
+  fetch(`http://localhost:3000/cart/${user.user_id}`)
+    .then(res => res.json())
+    .then(cart => {
+      document.getElementById('cart-count').textContent = cart.length;
+    })
+    .catch(err => console.error('Error updating cart count:', err));
+}
+
+function logout() {
+  localStorage.removeItem("user");
+  localStorage.removeItem("isLoggedIn");
+  alert("You have been logged out.");
+  window.location.href = "login.html";
+}
+</script>
 </body>
 </html>

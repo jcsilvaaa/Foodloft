@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Order History</title>
+  <link rel="stylesheet" href="admin-order-history.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="admin-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>🍽 FoodLoft Admin</h2>
+      </div>
+      <nav>
+        <a href="admin.html">📊 Dashboard</a>
+        <a href="admin-products.html">📦 Products</a>
+        <a href="admin-user.html">👤 Users</a>
+        <a href="admin-order-history.html" class="active">📜 Order History</a>
+        <a href="admin-pending-orders.html">⏳ Pending Orders</a>
+        <a href="admin-sales.html">💰 Sales</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Top Header -->
+      <div class="top-header">
+        <span class="logged-in">✅ Admin Logged In</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+
+      <header>
+        <h1>Order History</h1>
+        <p>View all completed orders from the system.</p>
+      </header>
+
+      <!-- Orders Table -->
+      <section class="order-history-section">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total Price</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#101</td>
+              <td>Juan Dela Cruz</td>
+              <td>2x Burger, 1x Fries</td>
+              <td>₱350</td>
+              <td>2025-08-01</td>
+              <td class="status completed">Completed</td>
+            </tr>
+            <tr>
+              <td>#102</td>
+              <td>Maria Santos</td>
+              <td>1x Pizza, 2x Coke</td>
+              <td>₱500</td>
+              <td>2025-08-02</td>
+              <td class="status completed">Completed</td>
+            </tr>
+            <tr>
+              <td>#103</td>
+              <td>Carlos Gomez</td>
+              <td>1x Pasta</td>
+              <td>₱250</td>
+              <td>2025-08-03</td>
+              <td class="status completed">Completed</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    function logout() {
+      alert("Logging out...");
+      window.location.href = "login.html";
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background: #f4f4f4;
+}
+
+/* Layout */
+.admin-container {
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  background: #8B0000;
+  color: white;
+  padding: 20px;
+  width: 250px;
+  min-height: 100vh;
+}
+
+.sidebar .brand {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.sidebar nav a {
+  display: block;
+  color: white;
+  padding: 10px 0;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Top Header */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.logged-in {
+  background: #8B0000;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.logout-btn {
+  background: white;
+  border: 2px solid #8B0000;
+  color: #8B0000;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.logout-btn:hover {
+  background: #8B0000;
+  color: white;
+}
+
+/* Table */
+.order-history-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table thead {
+  background: #8B0000;
+  color: white;
+}
+
+table th,
+table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.status.completed {
+  color: green;
+  font-weight: bold;
+}

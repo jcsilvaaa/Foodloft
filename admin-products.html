@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Products</title>
+  <link rel="stylesheet" href="admin-products.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>🍽 FoodLoft Admin</h2>
+    </div>
+    <nav>
+      <a href="admin.html">📊 Dashboard</a>
+      <a href="admin-products.html" class="active">📦 Products</a>
+      <a href="admin-user.html">👤 Users</a>
+      <a href="admin-order-history.html">📜 Order History</a>
+      <a href="admin-pending-orders.html">⏳ Pending Orders</a>
+      <a href="admin-sales.html">💰 Sales</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Top Header -->
+    <div class="top-header">
+      <span class="logged-in">✅ Admin Logged In</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <header>
+      <h1>Manage Products</h1>
+      <p>Add, update, and manage your food items here.</p>
+    </header>
+
+    <!-- Add Product Form -->
+    <section class="product-form">
+      <h2>Add New Product</h2>
+      <form id="addProductForm">
+        <label>Food Name</label>
+        <input type="text" id="productName" placeholder="Enter food name" required>
+
+        <label>Description</label>
+        <textarea id="productDescription" placeholder="Enter food description" required></textarea>
+
+        <label>Price (₱)</label>
+        <input type="number" id="productPrice" placeholder="Enter price" required>
+
+        <label>Quantity</label>
+        <input type="number" id="productStock" placeholder="Enter quantity" required>
+
+        <label>Category</label>
+        <input type="text" id="productCategory" placeholder="Enter category" required>
+
+        <label>Image</label>
+        <input type="file" id="productImage" accept="image/*" required>
+
+        <button type="submit">➕ Add Product</button>
+      </form>
+    </section>
+
+    <!-- Products Table -->
+    <section class="product-list">
+      <h2>Product List</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Food Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Category</th>
+            <th>Image</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="productTableBody"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+  // Adjusted endpoint to match "food" table in backend
+  const API_URL = "http://localhost:3000/api/food";
+
+  function logout() {
+    alert("Logging out...");
+    window.location.href = "login.html";
+  }
+
+  // Add Product
+  document.getElementById("addProductForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("name", document.getElementById("productName").value);
+    formData.append("description", document.getElementById("productDescription").value);
+    formData.append("price", document.getElementById("productPrice").value);
+    formData.append("quantity", document.getElementById("productStock").value);
+    formData.append("category", document.getElementById("productCategory").value);
+    formData.append("image", document.getElementById("productImage").files[0]);
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Product added successfully!");
+        e.target.reset();
+        loadProducts();
+      } else {
+        alert("❌ Error: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("❌ Failed to add product.");
+    }
+  });
+
+  // Load Products
+  async function loadProducts() {
+    try {
+      const res = await fetch(API_URL);
+      const products = await res.json();
+
+      const tbody = document.getElementById("productTableBody");
+      tbody.innerHTML = "";
+
+      products.forEach(p => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td contenteditable="false">${p.name}</td>
+          <td contenteditable="false">${p.description}</td>
+          <td contenteditable="false">${p.price}</td>
+          <td contenteditable="false">${p.quantity}</td>
+          <td contenteditable="false">${p.category}</td>
+          <td><img src="${p.image}" alt="${p.name}" width="50"></td>
+          <td>
+            <button class="edit-btn" onclick="editProduct(this, ${p.id})">✏️ Edit</button>
+            <button class="delete-btn" onclick="deleteProduct(${p.id})">🗑 Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (err) {
+      console.error("Error loading products:", err);
+    }
+  }
+
+  // Inline Edit Product
+  function editProduct(btn, id) {
+    const row = btn.closest("tr");
+    // Select first 5 td cells for editable fields
+    const editableCells = row.querySelectorAll("td:nth-child(-n+5)");
+
+    if (btn.textContent.includes("Edit")) {
+      editableCells.forEach(td => td.setAttribute("contenteditable", "true"));
+      btn.textContent = "💾 Save";
+    } else {
+      const updatedData = {
+        name: editableCells[0].innerText.trim(),
+        description: editableCells[1].innerText.trim(),
+        price: parseFloat(editableCells[2].innerText.trim()),
+        quantity: parseInt(editableCells[3].innerText.trim(), 10),
+        category: editableCells[4].innerText.trim()
+      };
+
+      fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to update product");
+        return res.json();
+      })
+      .then(() => {
+        editableCells.forEach(td => td.setAttribute("contenteditable", "false"));
+        btn.textContent = "✏️ Edit";
+        loadProducts();
+      })
+      .catch(err => {
+        alert(err.message);
+        console.error(err);
+      });
+    }
+  }
+
+  // Delete Product
+  async function deleteProduct(id) {
+    console.log("Trying to delete product ID:", id);
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        alert("🗑 Product deleted.");
+        loadProducts();
+      } else {
+        const data = await res.json();
+        alert("❌ Error: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("❌ Failed to delete product.");
+    }
+  }
+
+  // Init
+  loadProducts();
+</script>
+
+</body>
+</html>
