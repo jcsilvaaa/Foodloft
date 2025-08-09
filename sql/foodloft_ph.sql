@@ -58,14 +58,11 @@ CREATE TABLE cart (
   CONSTRAINT cart_ibfk_2 FOREIGN KEY (food_id) REFERENCES food (food_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Table: orders 
+-- Table: orders
 DROP TABLE IF EXISTS orders;
 CREATE TABLE orders (
   order_id INT NOT NULL AUTO_INCREMENT,
-  user_id INT DEFAULT NULL,
-  order_date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  status ENUM('pending','preparing','delivered','cancelled') DEFAULT 'pending',
-  total_price DECIMAL(10,2) DEFAULT NULL,
+  user_id INT NOT NULL,
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   company_name VARCHAR(100) DEFAULT NULL,
@@ -78,24 +75,26 @@ CREATE TABLE orders (
   email_address VARCHAR(100) NOT NULL,
   additional_info TEXT,
   payment_method VARCHAR(50) NOT NULL,
+  total_amount DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (order_id),
   KEY user_id (user_id),
-  CONSTRAINT orders_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (user_id)
+  CONSTRAINT orders_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Table: order_items
 DROP TABLE IF EXISTS order_items;
 CREATE TABLE order_items (
-  order_item_id INT NOT NULL AUTO_INCREMENT,
-  order_id INT DEFAULT NULL,
-  food_id INT DEFAULT NULL,
-  quantity INT NOT NULL DEFAULT 1,
-  price DECIMAL(10,2) DEFAULT NULL,
-  PRIMARY KEY (order_item_id),
+  item_id INT NOT NULL AUTO_INCREMENT,
+  order_id INT NOT NULL,
+  food_id INT NOT NULL,
+  quantity INT NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (item_id),
   KEY order_id (order_id),
   KEY food_id (food_id),
-  CONSTRAINT order_items_ibfk_1 FOREIGN KEY (order_id) REFERENCES orders (order_id),
-  CONSTRAINT order_items_ibfk_2 FOREIGN KEY (food_id) REFERENCES food (food_id)
+  CONSTRAINT order_items_ibfk_1 FOREIGN KEY (order_id) REFERENCES orders (order_id) ON DELETE CASCADE,
+  CONSTRAINT order_items_ibfk_2 FOREIGN KEY (food_id) REFERENCES food (food_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Table: reviews
