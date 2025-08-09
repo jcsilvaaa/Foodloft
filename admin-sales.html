@@ -21,7 +21,6 @@
       <a href="admin-products.html">📦 Products</a>
       <a href="admin-user.html">👤 Users</a>
       <a href="admin-order-history.html">📜 Order History</a>
-      <a href="admin-pending-orders.html">⏳ Pending Orders</a>
       <a href="admin-sales.html" class="active">💰 Sales</a>
     </nav>
   </aside>
@@ -44,15 +43,15 @@
     <section class="dashboard-cards">
       <div class="card">
         <h3>Total Sales</h3>
-        <p>₱120,000</p>
+        <p id="totalSales">₱0</p>
       </div>
       <div class="card">
         <h3>Monthly Sales</h3>
-        <p>₱25,000</p>
+        <p id="monthlySales">₱0</p>
       </div>
       <div class="card">
         <h3>Orders Completed</h3>
-        <p>150</p>
+        <p id="totalOrders">0</p>
       </div>
     </section>
 
@@ -68,24 +67,9 @@
             <th>Total Amount</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="salesTableBody">
           <tr>
-            <td>#101</td>
-            <td>Juan Dela Cruz</td>
-            <td>2025-08-08</td>
-            <td>₱1,500</td>
-          </tr>
-          <tr>
-            <td>#102</td>
-            <td>Maria Santos</td>
-            <td>2025-08-08</td>
-            <td>₱900</td>
-          </tr>
-          <tr>
-            <td>#103</td>
-            <td>Pedro Ramirez</td>
-            <td>2025-08-07</td>
-            <td>₱2,200</td>
+            <td colspan="4" class="loading">Loading sales data...</td>
           </tr>
         </tbody>
       </table>
@@ -95,9 +79,59 @@
 </div>
 
 <script>
+// Load sales data when page loads
+window.addEventListener('DOMContentLoaded', function() {
+  loadSalesData();
+});
+
 function logout() {
   alert("Logging out...");
   window.location.href = "login.html";
+}
+
+async function loadSalesData() {
+  try {
+    const response = await fetch('/api/sales');
+    const salesData = await response.json();
+    
+    // Update summary cards
+    document.getElementById('totalSales').textContent = 
+      '₱' + parseFloat(salesData.total_sales || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+    
+    document.getElementById('monthlySales').textContent = 
+      '₱' + parseFloat(salesData.monthly_sales || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+    
+    document.getElementById('totalOrders').textContent = 
+      parseInt(salesData.total_orders || 0).toLocaleString();
+    
+    // Update transactions table
+    const tbody = document.getElementById('salesTableBody');
+    
+    if (salesData.recent_transactions && salesData.recent_transactions.length > 0) {
+      tbody.innerHTML = salesData.recent_transactions.map(transaction => `
+        <tr>
+          <td>#${transaction.order_id}</td>
+          <td>${transaction.customer_name || 'Unknown Customer'}</td>
+          <td>${new Date(transaction.order_date).toLocaleDateString()}</td>
+          <td>₱${parseFloat(transaction.total_price || 0).toFixed(2)}</td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="4">No transactions found</td></tr>';
+    }
+    
+  } catch (error) {
+    console.error('Error loading sales data:', error);
+    
+    // Show error in summary cards
+    document.getElementById('totalSales').textContent = 'Error';
+    document.getElementById('monthlySales').textContent = 'Error';
+    document.getElementById('totalOrders').textContent = 'Error';
+    
+    // Show error in table
+    document.getElementById('salesTableBody').innerHTML = 
+      '<tr><td colspan="4">Error loading sales data</td></tr>';
+  }
 }
 </script>
 

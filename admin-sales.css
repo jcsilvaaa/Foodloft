@@ -119,3 +119,9 @@ header h1 {
 .sales-table tr:hover {
   background-color: #f1f1f1;
 }
+
+.loading {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}

@@ -21,7 +21,6 @@
         <a href="admin-products.html">📦 Products</a>
         <a href="admin-user.html">👤 Users</a>
         <a href="admin-order-history.html" class="active">📜 Order History</a>
-        <a href="admin-pending-orders.html">⏳ Pending Orders</a>
         <a href="admin-sales.html">💰 Sales</a>
       </nav>
     </aside>
@@ -38,6 +37,9 @@
       <header>
         <h1>Order History</h1>
         <p>View all completed orders from the system.</p>
+        <div class="header-actions">
+          <button class="add-order-btn" onclick="showAddOrderModal()">➕ Add New Order</button>
+        </div>
       </header>
 
       <!-- Orders Table -->
@@ -53,43 +55,279 @@
               <th>Status</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="ordersTableBody">
             <tr>
-              <td>#101</td>
-              <td>Juan Dela Cruz</td>
-              <td>2x Burger, 1x Fries</td>
-              <td>₱350</td>
-              <td>2025-08-01</td>
-              <td class="status completed">Completed</td>
-            </tr>
-            <tr>
-              <td>#102</td>
-              <td>Maria Santos</td>
-              <td>1x Pizza, 2x Coke</td>
-              <td>₱500</td>
-              <td>2025-08-02</td>
-              <td class="status completed">Completed</td>
-            </tr>
-            <tr>
-              <td>#103</td>
-              <td>Carlos Gomez</td>
-              <td>1x Pasta</td>
-              <td>₱250</td>
-              <td>2025-08-03</td>
-              <td class="status completed">Completed</td>
+              <td colspan="6" class="loading">Loading orders...</td>
             </tr>
           </tbody>
         </table>
       </section>
 
+      <!-- Add Order Modal -->
+      <div id="addOrderModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Add New Order</h2>
+            <span class="close" onclick="hideAddOrderModal()">&times;</span>
+          </div>
+          <form id="addOrderForm">
+            <div class="form-group">
+              <label for="customerId">Customer:</label>
+              <select id="customerId" required>
+                <option value="">Select Customer</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="customerName">Customer Name:</label>
+              <input type="text" id="customerName" required placeholder="Enter customer full name">
+            </div>
+            <div class="form-group">
+              <label for="deliveryAddress">Delivery Address:</label>
+              <textarea id="deliveryAddress" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Items:</label>
+              <div id="orderItems">
+                <div class="item-row">
+                  <select class="food-select" required>
+                    <option value="">Select Food</option>
+                  </select>
+                  <input type="number" class="quantity-input" placeholder="Qty" min="1" value="1" required>
+                  <button type="button" onclick="removeItem(this)">Remove</button>
+                </div>
+              </div>
+              <button type="button" onclick="addItem()">Add Item</button>
+            </div>
+            <div class="form-group">
+              <label>Total Price: ₱<span id="totalPrice">0.00</span></label>
+            </div>
+            <div class="modal-actions">
+              <button type="button" onclick="hideAddOrderModal()">Cancel</button>
+              <button type="submit">Create Order</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </main>
   </div>
 
   <script>
+    let users = [];
+    let foods = [];
+    
+    // Load data when page loads
+    window.addEventListener('DOMContentLoaded', function() {
+      loadOrders();
+      loadUsers();
+      loadFoods();
+    });
+    
     function logout() {
       alert("Logging out...");
       window.location.href = "login.html";
     }
+    
+    async function loadOrders() {
+      try {
+        const response = await fetch('/api/orders');
+        const orders = await response.json();
+        
+        const tbody = document.getElementById('ordersTableBody');
+        
+        if (orders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6">No orders found</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = orders.map(order => `
+          <tr>
+            <td>#${order.order_id}</td>
+            <td>${order.customer_name || 'Unknown Customer'}</td>
+            <td>${order.items || 'No items'}</td>
+            <td>₱${parseFloat(order.total_price || 0).toFixed(2)}</td>
+            <td>${new Date(order.order_date).toLocaleDateString()}</td>
+            <td class="status ${order.status}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</td>
+          </tr>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        document.getElementById('ordersTableBody').innerHTML = 
+          '<tr><td colspan="6">Error loading orders</td></tr>';
+      }
+    }
+    
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/users');
+        users = await response.json();
+        
+        const select = document.getElementById('customerId');
+        select.innerHTML = '<option value="">Select Customer</option>' +
+          users.map(user => `<option value="${user.user_id}">${user.full_name}</option>`).join('');
+      } catch (error) {
+        console.error('Error loading users:', error);
+      }
+    }
+    
+    async function loadFoods() {
+      try {
+        const response = await fetch('/api/food');
+        foods = await response.json();
+        updateFoodSelects();
+      } catch (error) {
+        console.error('Error loading foods:', error);
+      }
+    }
+    
+    function updateFoodSelects() {
+      const selects = document.querySelectorAll('.food-select');
+      selects.forEach(select => {
+        select.innerHTML = '<option value="">Select Food</option>' +
+          foods.map(food => `<option value="${food.food_id}" data-price="${food.price}">${food.name} - ₱${food.price}</option>`).join('');
+        
+        select.addEventListener('change', calculateTotal);
+      });
+    }
+    
+    function showAddOrderModal() {
+      document.getElementById('addOrderModal').style.display = 'block';
+    }
+    
+    function hideAddOrderModal() {
+      document.getElementById('addOrderModal').style.display = 'none';
+      document.getElementById('addOrderForm').reset();
+      // Reset items to single row
+      document.getElementById('orderItems').innerHTML = `
+        <div class="item-row">
+          <select class="food-select" required>
+            <option value="">Select Food</option>
+          </select>
+          <input type="number" class="quantity-input" placeholder="Qty" min="1" value="1" required>
+          <button type="button" onclick="removeItem(this)">Remove</button>
+        </div>
+      `;
+      updateFoodSelects();
+      calculateTotal();
+    }
+    
+    function addItem() {
+      const itemsContainer = document.getElementById('orderItems');
+      const newRow = document.createElement('div');
+      newRow.className = 'item-row';
+      newRow.innerHTML = `
+        <select class="food-select" required>
+          <option value="">Select Food</option>
+        </select>
+        <input type="number" class="quantity-input" placeholder="Qty" min="1" value="1" required>
+        <button type="button" onclick="removeItem(this)">Remove</button>
+      `;
+      itemsContainer.appendChild(newRow);
+      updateFoodSelects();
+    }
+    
+    function removeItem(button) {
+      const itemsContainer = document.getElementById('orderItems');
+      if (itemsContainer.children.length > 1) {
+        button.parentElement.remove();
+        calculateTotal();
+      }
+    }
+    
+    function calculateTotal() {
+      let total = 0;
+      const itemRows = document.querySelectorAll('.item-row');
+      
+      itemRows.forEach(row => {
+        const select = row.querySelector('.food-select');
+        const quantityInput = row.querySelector('.quantity-input');
+        
+        if (select.value && quantityInput.value) {
+          const price = parseFloat(select.options[select.selectedIndex].dataset.price || 0);
+          const quantity = parseInt(quantityInput.value || 0);
+          total += price * quantity;
+        }
+      });
+      
+      document.getElementById('totalPrice').textContent = total.toFixed(2);
+    }
+    
+    // Add event listeners for quantity inputs
+    document.addEventListener('input', function(e) {
+      if (e.target.classList.contains('quantity-input')) {
+        calculateTotal();
+      }
+    });
+    
+    document.getElementById('addOrderForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const customerId = document.getElementById('customerId').value;
+      const customerName = document.getElementById('customerName').value;
+      const deliveryAddress = document.getElementById('deliveryAddress').value;
+      const itemRows = document.querySelectorAll('.item-row');
+      
+      const items = [];
+      let totalPrice = 0;
+      
+      for (const row of itemRows) {
+        const select = row.querySelector('.food-select');
+        const quantityInput = row.querySelector('.quantity-input');
+        
+        if (select.value && quantityInput.value) {
+          const price = parseFloat(select.options[select.selectedIndex].dataset.price);
+          const quantity = parseInt(quantityInput.value);
+          
+          items.push({
+            food_id: parseInt(select.value),
+            quantity: quantity,
+            price: price
+          });
+          
+          totalPrice += price * quantity;
+        }
+      }
+      
+      if (items.length === 0) {
+        alert('Please add at least one item');
+        return;
+      }
+      
+      if (!customerName) {
+        alert('Please enter customer name');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: parseInt(customerId) || 1, // Default to 1 if no customer selected
+            items: items,
+            delivery_address: deliveryAddress,
+            total_price: totalPrice,
+            customer_name: customerName
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          alert('Order created successfully!');
+          hideAddOrderModal();
+          loadOrders(); // Refresh the orders list
+        } else {
+          alert('Error: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error creating order:', error);
+        alert('Error creating order');
+      }
+    });
   </script>
 
 </body>

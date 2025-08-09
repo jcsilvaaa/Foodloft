@@ -138,12 +138,24 @@ DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `order_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL,
-  `order_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` enum('pending','preparing','delivered','cancelled') DEFAULT 'pending',
-  `total_price` decimal(10,2) DEFAULT NULL,
-  `delivery_address` text,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `company_name` varchar(100) DEFAULT NULL,
+  `country_region` varchar(50) NOT NULL,
+  `street_address` varchar(255) NOT NULL,
+  `city` varchar(50) NOT NULL,
+  `state` varchar(50) NOT NULL,
+  `zip` varchar(20) NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `email_address` varchar(100) NOT NULL,
+  `additional_info` text,
+  `payment_method` varchar(50) NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `order_status` enum('pending','confirmed','preparing','ready','delivered','cancelled','completed') DEFAULT 'pending' NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`order_id`),
   KEY `user_id` (`user_id`),
+  KEY `idx_order_status` (`order_status`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
