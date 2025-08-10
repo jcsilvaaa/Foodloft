@@ -476,25 +476,27 @@ app.put('/api/orders/:orderId/status', (req, res) => {
 // Get sales data
 app.get('/api/sales', (req, res) => {
   const salesQueries = [
-    // Total sales
-    'SELECT SUM(total_amount) as total_sales FROM orders',
+    // Total sales - only count completed orders
+    'SELECT SUM(total_amount) as total_sales FROM orders WHERE order_status = "completed"',
     
-    // Monthly sales (current month)
+    // Monthly sales (current month) - only count completed orders
     `SELECT SUM(total_amount) as monthly_sales 
      FROM orders 
      WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) 
-     AND YEAR(created_at) = YEAR(CURRENT_DATE())`,
+     AND YEAR(created_at) = YEAR(CURRENT_DATE())
+     AND order_status = "completed"`,
     
     // Total completed orders
-    'SELECT COUNT(*) as total_orders FROM orders',
+    'SELECT COUNT(*) as total_orders FROM orders WHERE order_status = "completed"',
     
-    // Recent transactions
+    // Recent transactions - only show completed orders
     `SELECT 
        o.order_id,
        CONCAT(o.first_name, ' ', o.last_name) as customer_name,
        o.created_at as order_date,
        o.total_amount as total_price
      FROM orders o
+     WHERE o.order_status = "completed"
      ORDER BY o.created_at DESC
      LIMIT 10`
   ];

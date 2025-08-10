@@ -199,7 +199,7 @@
       const selects = document.querySelectorAll('.food-select');
       selects.forEach(select => {
         select.innerHTML = '<option value="">Select Food</option>' +
-          foods.map(food => `<option value="${food.food_id}" data-price="${food.price}">${food.name} - ₱${food.price}</option>`).join('');
+          foods.map(food => `<option value="${food.id}" data-price="${food.price}">${food.name} - ₱${food.price}</option>`).join('');
         
         select.addEventListener('change', calculateTotal);
       });
