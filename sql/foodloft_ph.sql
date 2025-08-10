@@ -76,9 +76,11 @@ CREATE TABLE orders (
   additional_info TEXT,
   payment_method VARCHAR(50) NOT NULL,
   total_amount DECIMAL(10,2) NOT NULL,
+  order_status ENUM('pending','confirmed','preparing','ready','delivered','cancelled','completed') DEFAULT 'pending' NOT NULL,
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (order_id),
   KEY user_id (user_id),
+  KEY idx_order_status (order_status),
   CONSTRAINT orders_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

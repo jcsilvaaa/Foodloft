@@ -41,15 +41,15 @@
       <section class="dashboard-cards">
         <div class="card">
           <h3>Total Sales</h3>
-          <p>₱120,000</p>
+          <p id="totalSales" class="loading">Loading...</p>
         </div>
         <div class="card">
           <h3>Pending Orders</h3>
-          <p>8</p>
+          <p id="pendingOrders" class="loading">Loading...</p>
         </div>
         <div class="card">
           <h3>Total Users</h3>
-          <p>540</p>
+          <p id="totalUsers" class="loading">Loading...</p>
         </div>
       </section>
 
@@ -58,6 +58,49 @@
   </div>
 
   <script>
+    // Load dashboard data when page loads
+    window.addEventListener('DOMContentLoaded', function() {
+      loadDashboardStats();
+    });
+
+    async function loadDashboardStats() {
+      try {
+        // Load sales data
+        const salesResponse = await fetch('/api/sales');
+        const salesData = await salesResponse.json();
+        
+        // Update total sales
+        const totalSalesElement = document.getElementById('totalSales');
+        totalSalesElement.classList.remove('loading');
+        totalSalesElement.textContent = 
+          '₱' + parseFloat(salesData.total_sales || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+        
+        // Load total users
+        const usersResponse = await fetch('/api/users');
+        const usersData = await usersResponse.json();
+        const totalUsersElement = document.getElementById('totalUsers');
+        totalUsersElement.classList.remove('loading');
+        totalUsersElement.textContent = usersData.length;
+        
+        // Load orders to count pending ones
+        const ordersResponse = await fetch('/api/orders');
+        const ordersData = await ordersResponse.json();
+        const pendingCount = ordersData.filter(order => 
+          order.status === 'pending' || order.status === 'confirmed'
+        ).length;
+        const pendingOrdersElement = document.getElementById('pendingOrders');
+        pendingOrdersElement.classList.remove('loading');
+        pendingOrdersElement.textContent = pendingCount;
+        
+      } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+        // Show error state
+        document.getElementById('totalSales').textContent = 'Error';
+        document.getElementById('pendingOrders').textContent = 'Error';
+        document.getElementById('totalUsers').textContent = 'Error';
+      }
+    }
+
     function logout() {
       alert("Logging out...");
       window.location.href = "login.html";

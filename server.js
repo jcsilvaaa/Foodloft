@@ -279,7 +279,24 @@ app.post('/checkout', (req, res) => {
 
     const order_id = orderResult.insertId;
 
-    const itemValues = cartItems.map(item => [order_id, item.food_id, item.quantity, item.price]);
+    // Validate cart items before inserting
+    const validCartItems = cartItems.filter(item => 
+      item.food_id && 
+      !isNaN(parseInt(item.food_id)) && 
+      parseInt(item.food_id) > 0 &&
+      item.quantity && 
+      !isNaN(parseInt(item.quantity)) && 
+      parseInt(item.quantity) > 0 &&
+      item.price && 
+      !isNaN(parseFloat(item.price)) && 
+      parseFloat(item.price) > 0
+    );
+
+    if (validCartItems.length === 0) {
+      return res.status(400).json({ message: 'No valid items in cart' });
+    }
+
+    const itemValues = validCartItems.map(item => [order_id, parseInt(item.food_id), parseInt(item.quantity), parseFloat(item.price)]);
     const itemQuery = `
       INSERT INTO order_items (order_id, food_id, quantity, price)
       VALUES ?
@@ -423,6 +440,37 @@ app.get('/api/orders', (req, res) => {
   });
 });
 
+// Update order status endpoint
+app.put('/api/orders/:orderId/status', (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+  
+  // Validate status
+  const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled', 'completed'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Invalid order status' });
+  }
+  
+  const query = 'UPDATE orders SET order_status = ? WHERE order_id = ?';
+  
+  db.query(query, [status, orderId], (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Failed to update order status' });
+    }
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    res.json({ 
+      message: 'Order status updated successfully',
+      orderId: orderId,
+      newStatus: status
+    });
+  });
+});
+
 
 
 // Get sales data
@@ -504,8 +552,46 @@ app.post('/api/orders', (req, res) => {
       return res.status(500).json({ error: 'Failed to create order' });
     }
     
-    // For now, we'll skip adding to order_items since the table structure is unclear
-    res.json({ message: 'Order created successfully', order_id: orderResult.insertId });
+    const order_id = orderResult.insertId;
+    
+    // Add order items to order_items table
+    if (items && items.length > 0) {
+      // Validate items before inserting
+      const validItems = items.filter(item => 
+        item.food_id && 
+        !isNaN(parseInt(item.food_id)) && 
+        parseInt(item.food_id) > 0 &&
+        item.quantity && 
+        !isNaN(parseInt(item.quantity)) && 
+        parseInt(item.quantity) > 0 &&
+        item.price && 
+        !isNaN(parseFloat(item.price)) && 
+        parseFloat(item.price) > 0
+      );
+      
+      if (validItems.length === 0) {
+        return res.status(400).json({ error: 'No valid items provided' });
+      }
+      
+      const orderItemsQuery = 'INSERT INTO order_items (order_id, food_id, quantity, price) VALUES ?';
+      const orderItemsValues = validItems.map(item => [
+        order_id,
+        parseInt(item.food_id),
+        parseInt(item.quantity),
+        parseFloat(item.price)
+      ]);
+      
+      db.query(orderItemsQuery, [orderItemsValues], (itemsErr) => {
+        if (itemsErr) {
+          console.error('Error adding order items:', itemsErr);
+          return res.status(500).json({ error: 'Failed to add order items' });
+        }
+        
+        res.json({ message: 'Order created successfully', order_id: order_id });
+      });
+    } else {
+      res.json({ message: 'Order created successfully (no items)', order_id: order_id });
+    }
   });
 });
 

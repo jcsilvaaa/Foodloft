@@ -53,11 +53,12 @@
               <th>Total Price</th>
               <th>Date</th>
               <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="ordersTableBody">
             <tr>
-              <td colspan="6" class="loading">Loading orders...</td>
+              <td colspan="7" class="loading">Loading orders...</td>
             </tr>
           </tbody>
         </table>
@@ -136,7 +137,7 @@
         const tbody = document.getElementById('ordersTableBody');
         
         if (orders.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6">No orders found</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7">No orders found</td></tr>';
           return;
         }
         
@@ -147,14 +148,27 @@
             <td>${order.items || 'No items'}</td>
             <td>₱${parseFloat(order.total_price || 0).toFixed(2)}</td>
             <td>${new Date(order.order_date).toLocaleDateString()}</td>
-            <td class="status ${order.status}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</td>
+            <td class="status ${order.status}">
+              <select class="status-dropdown" data-order-id="${order.order_id}" data-original-status="${order.status}" onchange="updateOrderStatus(this)">
+                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
+                <option value="ready" ${order.status === 'ready' ? 'selected' : ''}>Ready</option>
+                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+            </td>
+            <td>
+              <button class="view-btn" onclick="viewOrderDetails(${order.order_id})">View Details</button>
+            </td>
           </tr>
         `).join('');
         
       } catch (error) {
         console.error('Error loading orders:', error);
         document.getElementById('ordersTableBody').innerHTML = 
-          '<tr><td colspan="6">Error loading orders</td></tr>';
+          '<tr><td colspan="7">Error loading orders</td></tr>';
       }
     }
     
@@ -193,6 +207,12 @@
     
     function showAddOrderModal() {
       document.getElementById('addOrderModal').style.display = 'block';
+      // Ensure foods are loaded when modal opens
+      if (!foods || foods.length === 0) {
+        loadFoods();
+      } else {
+        updateFoodSelects();
+      }
     }
     
     function hideAddOrderModal() {
@@ -275,17 +295,24 @@
         const select = row.querySelector('.food-select');
         const quantityInput = row.querySelector('.quantity-input');
         
-        if (select.value && quantityInput.value) {
+        if (select.value && quantityInput.value && select.value !== '') {
+          const foodId = parseInt(select.value);
           const price = parseFloat(select.options[select.selectedIndex].dataset.price);
           const quantity = parseInt(quantityInput.value);
           
-          items.push({
-            food_id: parseInt(select.value),
-            quantity: quantity,
-            price: price
-          });
-          
-          totalPrice += price * quantity;
+          // Validate that we have valid values
+          if (!isNaN(foodId) && !isNaN(price) && !isNaN(quantity) && foodId > 0 && quantity > 0) {
+            items.push({
+              food_id: foodId,
+              quantity: quantity,
+              price: price
+            });
+            
+            totalPrice += price * quantity;
+          } else {
+            alert('Please ensure all food items have valid selections and quantities');
+            return;
+          }
         }
       }
       
@@ -328,6 +355,78 @@
         alert('Error creating order');
       }
     });
+    
+    // Function to update order status
+    async function updateOrderStatus(selectElement) {
+      const orderId = selectElement.getAttribute('data-order-id');
+      const newStatus = selectElement.value;
+      const originalStatus = selectElement.getAttribute('data-original-status') || selectElement.dataset.originalStatus || 'pending';
+      
+      // If status hasn't changed, don't make request
+      if (newStatus === originalStatus) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            status: newStatus
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          // Update the visual status
+          const statusCell = selectElement.parentElement;
+          statusCell.className = `status ${newStatus}`;
+          selectElement.setAttribute('data-original-status', newStatus);
+          
+          // Show success message
+          showStatusMessage(`Order #${orderId} status updated to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`, 'success');
+        } else {
+          // Revert the dropdown to original status on error
+          selectElement.value = originalStatus;
+          showStatusMessage('Error: ' + result.error, 'error');
+        }
+      } catch (error) {
+        console.error('Error updating order status:', error);
+        selectElement.value = originalStatus;
+        showStatusMessage('Error updating order status: ' + error.message, 'error');
+      }
+    }
+    
+    // Function to show status messages
+    function showStatusMessage(message, type) {
+      // Remove any existing status messages
+      const existingMessage = document.querySelector('.status-message');
+      if (existingMessage) {
+        existingMessage.remove();
+      }
+      
+      // Create new status message
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `status-message ${type}`;
+      messageDiv.textContent = message;
+      
+      // Insert at the top of the main content
+      const mainContent = document.querySelector('.main-content');
+      mainContent.insertBefore(messageDiv, mainContent.firstChild);
+      
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        messageDiv.remove();
+      }, 5000);
+    }
+    
+    // Function to view order details (placeholder)
+    function viewOrderDetails(orderId) {
+      alert(`View details for Order #${orderId}\n\nThis feature can be expanded to show:\n- Customer information\n- Order items breakdown\n- Delivery address\n- Payment method\n- Order timeline`);
+    }
   </script>
 
 </body>
