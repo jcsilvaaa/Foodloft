@@ -110,6 +110,17 @@ button:hover {
     background-color: #a60000;
 }
 
+.logo-link {
+    text-decoration: none;
+    color: inherit; /* Keeps the same color as the h1 */
+  }
+  
+.logo-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+
 /* FOOTER */
 footer {
     background-color: #8b0000;

@@ -1,750 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard - FoodLoft</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - FoodLoft</title>
+  <link rel="stylesheet" href="admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
 
-      body {
-        font-family: "Poppins", sans-serif;
-        background-color: #f8f9fa;
-        color: #333;
-      }
+  <div class="admin-container">
 
-      /* Header */
-      .admin-header {
-        background-color: #8b0000;
-        color: white;
-        padding: 15px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .admin-logo h1 {
-        font-family: "Playfair Display", serif;
-        font-size: 2rem;
-        font-weight: 700;
-      }
-
-      .admin-logo span {
-        font-size: 0.8rem;
-        opacity: 0.8;
-        margin-left: 10px;
-      }
-
-      .admin-user {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
-
-      .admin-user img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-
-      .logout-btn {
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-
-      .logout-btn:hover {
-        background: rgba(255, 255, 255, 0.3);
-      }
-
-      /* Sidebar */
-      .dashboard-container {
-        display: flex;
-        min-height: calc(100vh - 70px);
-      }
-
-      .sidebar {
-        width: 250px;
-        background-color: white;
-        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-        padding: 30px 0;
-      }
-
-      .sidebar-menu {
-        list-style: none;
-      }
-
-      .sidebar-menu li {
-        margin-bottom: 5px;
-      }
-
-      .sidebar-menu a {
-        display: flex;
-        align-items: center;
-        padding: 15px 30px;
-        color: #666;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border-left: 3px solid transparent;
-      }
-
-      .sidebar-menu a:hover,
-      .sidebar-menu a.active {
-        background-color: #fff0e5;
-        color: #8b0000;
-        border-left-color: #8b0000;
-      }
-
-      .sidebar-menu .icon {
-        margin-right: 12px;
-        font-size: 1.2rem;
-      }
-
-      /* Main Content */
-      .main-content {
-        flex: 1;
-        padding: 30px;
-        background-color: #f8f9fa;
-      }
-
-      .page-title {
-        margin-bottom: 30px;
-      }
-
-      .page-title h2 {
-        font-size: 2.5rem;
-        color: #8b0000;
-        font-family: "Playfair Display", serif;
-        margin-bottom: 5px;
-      }
-
-      .page-title p {
-        color: #666;
-        font-size: 1.1rem;
-      }
-
-      /* Stats Cards */
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-      }
-
-      .stat-card {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-      }
-
-      .stat-card:hover {
-        transform: translateY(-2px);
-      }
-
-      .stat-card .icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: white;
-        margin-bottom: 15px;
-      }
-
-      .stat-card .icon.orders {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-      .stat-card .icon.revenue {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      }
-      .stat-card .icon.customers {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      }
-      .stat-card .icon.dishes {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-      }
-
-      .stat-card h3 {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 5px;
-      }
-
-      .stat-card p {
-        color: #666;
-        font-size: 1rem;
-      }
-
-      .stat-card .change {
-        font-size: 0.9rem;
-        margin-top: 8px;
-      }
-
-      .stat-card .change.positive {
-        color: #28a745;
-      }
-
-      .stat-card .change.negative {
-        color: #dc3545;
-      }
-
-      /* Charts Section */
-      .charts-section {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 30px;
-        margin-bottom: 40px;
-      }
-
-      .chart-card {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .chart-card h3 {
-        font-size: 1.4rem;
-        color: #333;
-        margin-bottom: 20px;
-        font-weight: 600;
-      }
-
-      .chart-placeholder {
-        height: 300px;
-        background: linear-gradient(135deg, #fff0e5 0%, #fce5cd 100%);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #8b0000;
-        font-size: 1.1rem;
-        border: 2px dashed #8b0000;
-        opacity: 0.7;
-      }
-
-      /* Tables */
-      .data-tables {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-      }
-
-      .table-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-      }
-
-      .table-header {
-        background: #8b0000;
-        color: white;
-        padding: 20px 25px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .table-header h3 {
-        font-size: 1.3rem;
-        font-weight: 600;
-      }
-
-      .view-all-btn {
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-
-      .view-all-btn:hover {
-        background: rgba(255, 255, 255, 0.3);
-      }
-
-      .data-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .data-table th,
-      .data-table td {
-        padding: 15px 25px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-      }
-
-      .data-table th {
-        background: #f8f9fa;
-        font-weight: 600;
-        color: #333;
-        font-size: 0.9rem;
-      }
-
-      .data-table td {
-        font-size: 0.95rem;
-      }
-
-      .data-table tr:hover {
-        background: #f8f9fa;
-      }
-
-      .status-badge {
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-
-      .status-completed {
-        background: #d4edda;
-        color: #155724;
-      }
-      .status-pending {
-        background: #fff3cd;
-        color: #856404;
-      }
-      .status-processing {
-        background: #cce5ff;
-        color: #004085;
-      }
-      .status-cancelled {
-        background: #f8d7da;
-        color: #721c24;
-      }
-
-      .priority-high {
-        color: #dc3545;
-        font-weight: 600;
-      }
-      .priority-medium {
-        color: #ffc107;
-        font-weight: 600;
-      }
-      .priority-low {
-        color: #28a745;
-        font-weight: 600;
-      }
-
-      /* Action Buttons */
-      .action-btn {
-        background: #8b0000;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: background 0.3s ease;
-        margin-right: 5px;
-      }
-
-      .action-btn:hover {
-        background: #a60000;
-      }
-
-      .action-btn.secondary {
-        background: #6c757d;
-      }
-
-      .action-btn.secondary:hover {
-        background: #545b62;
-      }
-
-      /* Quick Actions */
-      .quick-actions {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 30px;
-      }
-
-      .quick-actions h3 {
-        margin-bottom: 20px;
-        color: #333;
-        font-size: 1.4rem;
-      }
-
-      .actions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-      }
-
-      .quick-action-btn {
-        background: linear-gradient(135deg, #8b0000 0%, #a60000 100%);
-        color: white;
-        border: none;
-        padding: 15px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: transform 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-      }
-
-      .quick-action-btn:hover {
-        transform: translateY(-2px);
-      }
-
-      /* Responsive */
-      @media (max-width: 1024px) {
-        .charts-section {
-          grid-template-columns: 1fr;
-        }
-
-        .data-tables {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .dashboard-container {
-          flex-direction: column;
-        }
-
-        .sidebar {
-          width: 100%;
-          order: 2;
-        }
-
-        .main-content {
-          order: 1;
-          padding: 20px;
-        }
-
-        .admin-header {
-          padding: 15px 20px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header class="admin-header">
-      <div class="admin-logo">
-        <h1>FoodLoft</h1>
-        <span>Admin Dashboard</span>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>🍽 FoodLoft Admin</h2>
       </div>
-      <div class="admin-user">
-        <img
-          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
-          alt="Admin"
-        />
-        <span>Admin User</span>
-        <button class="logout-btn">Logout</button>
-      </div>
-    </header>
-
-    <div class="dashboard-container">
-      <nav class="sidebar">
-        <ul class="sidebar-menu">
-          <li>
-            <a href="admin.html" class="active"
-              ><span class="icon">📊</span>Dashboard</a
-            >
-          </li>
-          <li>
-            <a href="order-management.html"
-              ><span class="icon">📋</span>Orders</a
-            >
-          </li>
-          <li>
-            <a href="menu-management.html"
-              ><span class="icon">🍜</span>Menu Management</a
-            >
-          </li>
-        </ul>
+      <nav>
+        <a href="admin-products.html">📦 Products</a>
+        <a href="admin-user.html">👤 Users</a>
+        <a href="admin-order-history.html">📜 Order History</a>
+        <a href="admin-sales.html">💰 Sales</a>
       </nav>
+    </aside>
 
-      <main class="main-content">
-        <!-- Dashboard Content -->
-        <div id="dashboard-content" class="tab-content active">
-          <div class="page-title">
-            <h2>Dashboard Overview</h2>
-            <p>Welcome back! Here's what's happening at FoodLoft today.</p>
-          </div>
+    <!-- Main Content -->
+    <main class="main-content">
 
-          <!-- Quick Actions -->
-          <div class="quick-actions">
-            <h3>Quick Actions</h3>
-            <div class="actions-grid">
-              <button class="quick-action-btn">
-                <span>➕</span>Add New Dish
-              </button>
-              <button class="quick-action-btn">
-                <span>📦</span>Process Orders
-              </button>
-              <!-- <button class="quick-action-btn">
-                <span>👥</span>Manage Staff
-              </button>
-              <button class="quick-action-btn">
-                <span>📊</span>View Reports
-              </button> -->
-            </div>
-          </div>
+      <!-- Top Header -->
+      <div class="top-header">
+        <span class="logged-in">Admin Logged In</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
 
-          <!-- Stats Cards -->
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="icon orders">📋</div>
-              <h3>248</h3>
-              <p>Total Orders Today</p>
-              <div class="change positive">↗ +12% from yesterday</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon revenue">💰</div>
-              <h3>₱45,680</h3>
-              <p>Today's Revenue</p>
-              <div class="change positive">↗ +8.5% from yesterday</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon customers">👥</div>
-              <h3>1,847</h3>
-              <p>Active Customers</p>
-              <div class="change positive">↗ +15% this week</div>
-            </div>
-            <div class="stat-card">
-              <div class="icon dishes">🍜</div>
-              <h3>156</h3>
-              <p>Menu Items</p>
-              <div class="change negative">↘ -2 items this week</div>
-            </div>
-          </div>
-          <!-- Data Tables -->
-          <div class="data-tables">
-            <!-- Recent Orders -->
-            <div class="table-card">
-              <div class="table-header">
-                <h3>Recent Orders</h3>
-                <button class="view-all-btn">View All</button>
-              </div>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>#FL2025015</td>
-                    <td>Maria Santos</td>
-                    <td>
-                      <span class="status-badge status-processing"
-                        >Processing</span
-                      >
-                    </td>
-                    <td>₱1,250</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#FL2025014</td>
-                    <td>John Cruz</td>
-                    <td>
-                      <span class="status-badge status-completed"
-                        >Completed</span
-                      >
-                    </td>
-                    <td>₱890</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#FL2025013</td>
-                    <td>Ana Rodriguez</td>
-                    <td>
-                      <span class="status-badge status-pending">Pending</span>
-                    </td>
-                    <td>₱2,150</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#FL2025012</td>
-                    <td>David Kim</td>
-                    <td>
-                      <span class="status-badge status-completed"
-                        >Completed</span
-                      >
-                    </td>
-                    <td>₱750</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#FL2025011</td>
-                    <td>Lisa Wong</td>
-                    <td>
-                      <span class="status-badge status-cancelled"
-                        >Cancelled</span
-                      >
-                    </td>
-                    <td>₱680</td>
-                    <td>
-                      <button class="action-btn">View</button>
-                      <button class="action-btn secondary">Edit</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+      <header>
+        <h1>Welcome, Admin</h1>
+        <p>Manage products, orders, users, and sales here.</p>
+      </header>
 
-            <!-- Low Stock Alerts -->
-            <div class="table-card">
-              <div class="table-header">
-                <h3>Inventory Alerts</h3>
-                <button class="view-all-btn">Manage</button>
-              </div>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Current Stock</th>
-                    <th>Priority</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Soy Sauce</td>
-                    <td>5 bottles</td>
-                    <td><span class="priority-high">High</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                  <tr>
-                    <td>Rice Noodles</td>
-                    <td>12 packs</td>
-                    <td><span class="priority-medium">Medium</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                  <tr>
-                    <td>Sesame Oil</td>
-                    <td>8 bottles</td>
-                    <td><span class="priority-medium">Medium</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                  <tr>
-                    <td>Black Beans</td>
-                    <td>3 cans</td>
-                    <td><span class="priority-high">High</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                  <tr>
-                    <td>Chicken Stock</td>
-                    <td>15 cartons</td>
-                    <td><span class="priority-low">Low</span></td>
-                    <td><button class="action-btn">Reorder</button></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+      <section class="dashboard-cards">
+        <div class="card">
+          <h3>Total Sales</h3>
+          <p id="totalSales" class="loading">Loading...</p>
         </div>
-      </main>
-    </div>
+        <div class="card">
+          <h3>Pending Orders</h3>
+          <p id="pendingOrders" class="loading">Loading...</p>
+        </div>
+        <div class="card">
+          <h3>Total Users</h3>
+          <p id="totalUsers" class="loading">Loading...</p>
+        </div>
+      </section>
 
-    <script>
-      // Quick action buttons
-      document.querySelectorAll(".quick-action-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const action = this.textContent.trim();
-          alert(`${action} functionality would be implemented here!`);
-        });
-      });
+    </main>
 
-      // Action buttons in tables
-      document.querySelectorAll(".action-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const action = this.textContent;
-          const row = this.closest("tr");
-          const id = row.querySelector("td:first-child").textContent;
-          alert(`${action} action for ${id}`);
-        });
-      });
+  </div>
 
-      // View all buttons
-      document.querySelectorAll(".view-all-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const section =
-            this.closest(".table-card").querySelector("h3").textContent;
-          alert(`Opening detailed view for ${section}`);
-        });
-      });
+  <script>
+    // Load dashboard data when page loads
+    window.addEventListener('DOMContentLoaded', function() {
+      loadDashboardStats();
+    });
 
-      // Logout button
-      document
-        .querySelector(".logout-btn")
-        .addEventListener("click", function () {
-          if (confirm("Are you sure you want to logout?")) {
-            alert("Logout functionality would be implemented here!");
-            // window.location.href = 'login.html';
-          }
-        });
-
-      // Simulate real-time updates
-      function updateStats() {
-        const orderCount = document.querySelector(".stat-card h3");
-        if (orderCount) {
-          const current = parseInt(orderCount.textContent);
-          const newCount = current + Math.floor(Math.random() * 3);
-          orderCount.textContent = newCount;
-        }
+    async function loadDashboardStats() {
+      try {
+        // Load sales data
+        const salesResponse = await fetch('/api/sales');
+        const salesData = await salesResponse.json();
+        
+        // Update total sales
+        const totalSalesElement = document.getElementById('totalSales');
+        totalSalesElement.classList.remove('loading');
+        totalSalesElement.textContent = 
+          '₱' + parseFloat(salesData.total_sales || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+        
+        // Load total users
+        const usersResponse = await fetch('/api/users');
+        const usersData = await usersResponse.json();
+        const totalUsersElement = document.getElementById('totalUsers');
+        totalUsersElement.classList.remove('loading');
+        totalUsersElement.textContent = usersData.length;
+        
+        // Load orders to count pending ones
+        const ordersResponse = await fetch('/api/orders');
+        const ordersData = await ordersResponse.json();
+        const pendingCount = ordersData.filter(order => 
+          order.status === 'pending' || order.status === 'confirmed'
+        ).length;
+        const pendingOrdersElement = document.getElementById('pendingOrders');
+        pendingOrdersElement.classList.remove('loading');
+        pendingOrdersElement.textContent = pendingCount;
+        
+      } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+        // Show error state
+        document.getElementById('totalSales').textContent = 'Error';
+        document.getElementById('pendingOrders').textContent = 'Error';
+        document.getElementById('totalUsers').textContent = 'Error';
       }
+    }
 
-      // Update stats every 30 seconds (simulation)
-      setInterval(updateStats, 30000);
+    function logout() {
+      alert("Logging out...");
+      window.location.href = "login.html";
+    }
+  </script>
 
-      // Add loading states for better UX
-      function showLoading(element) {
-        element.style.opacity = "0.6";
-        element.style.pointerEvents = "none";
-      }
-
-      function hideLoading(element) {
-        element.style.opacity = "1";
-        element.style.pointerEvents = "auto";
-      }
-    </script>
-  </body>
+</body>
 </html>

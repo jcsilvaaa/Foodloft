@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Sales - FoodLoft</title>
+  <link rel="stylesheet" href="admin-sales.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>🍽 FoodLoft Admin</h2>
+    </div>
+    <nav>
+      <a href="admin.html">🏠 Dashboard</a>
+      <a href="admin-products.html">📦 Products</a>
+      <a href="admin-user.html">👤 Users</a>
+      <a href="admin-order-history.html">📜 Order History</a>
+      <a href="admin-sales.html" class="active">💰 Sales</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Top Header -->
+    <div class="top-header">
+      <span class="logged-in">✅ Admin Logged In</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <header>
+      <h1>Sales Overview</h1>
+      <p>Track and analyze sales performance.</p>
+    </header>
+
+    <!-- Sales Summary Cards -->
+    <section class="dashboard-cards">
+      <div class="card">
+        <h3>Total Sales</h3>
+        <p id="totalSales">₱0</p>
+      </div>
+      <div class="card">
+        <h3>Monthly Sales</h3>
+        <p id="monthlySales">₱0</p>
+      </div>
+      <div class="card">
+        <h3>Orders Completed</h3>
+        <p id="totalOrders">0</p>
+      </div>
+    </section>
+
+    <!-- Sales Table -->
+    <section class="sales-table">
+      <h2>Recent Transactions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Total Amount</th>
+          </tr>
+        </thead>
+        <tbody id="salesTableBody">
+          <tr>
+            <td colspan="4" class="loading">Loading sales data...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// Load sales data when page loads
+window.addEventListener('DOMContentLoaded', function() {
+  loadSalesData();
+});
+
+function logout() {
+  alert("Logging out...");
+  window.location.href = "login.html";
+}
+
+async function loadSalesData() {
+  try {
+    const response = await fetch('/api/sales');
+    const salesData = await response.json();
+    
+    // Update summary cards
+    document.getElementById('totalSales').textContent = 
+      '₱' + parseFloat(salesData.total_sales || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+    
+    document.getElementById('monthlySales').textContent = 
+      '₱' + parseFloat(salesData.monthly_sales || 0).toLocaleString('en-PH', {minimumFractionDigits: 2});
+    
+    document.getElementById('totalOrders').textContent = 
+      parseInt(salesData.total_orders || 0).toLocaleString();
+    
+    // Update transactions table
+    const tbody = document.getElementById('salesTableBody');
+    
+    if (salesData.recent_transactions && salesData.recent_transactions.length > 0) {
+      tbody.innerHTML = salesData.recent_transactions.map(transaction => `
+        <tr>
+          <td>#${transaction.order_id}</td>
+          <td>${transaction.customer_name || 'Unknown Customer'}</td>
+          <td>${new Date(transaction.order_date).toLocaleDateString()}</td>
+          <td>₱${parseFloat(transaction.total_price || 0).toFixed(2)}</td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="4">No transactions found</td></tr>';
+    }
+    
+  } catch (error) {
+    console.error('Error loading sales data:', error);
+    
+    // Show error in summary cards
+    document.getElementById('totalSales').textContent = 'Error';
+    document.getElementById('monthlySales').textContent = 'Error';
+    document.getElementById('totalOrders').textContent = 'Error';
+    
+    // Show error in table
+    document.getElementById('salesTableBody').innerHTML = 
+      '<tr><td colspan="4">Error loading sales data</td></tr>';
+  }
+}
+</script>
+
+</body>
+</html>

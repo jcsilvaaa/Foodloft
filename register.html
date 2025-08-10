@@ -3,65 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - TasteCheck</title>
-    <link rel="stylesheet" href="css/register.css">
+    <title>Register - FoodLoftPH</title>
+    <link rel="stylesheet" href="register.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Header -->
-    <header>
-        <div class="logo">
-            <h1>TasteCheck</h1>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="homepage.html">Home</a></li>
-                <li><a href="Branches.html">Cafe</a></li>
-                <li><a href="aboutpage.html">About Us</a></li>
-            </ul>
-        </nav>
-    </header>
+<header>
+    <div class="logo">
+        <h1><a href="Homepage.html" class="logo-link">FoodLoftPH</a></h1>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="menu.html">Menu</a></li>
+        </ul>
+    </nav>
+</header>
 
-    <!-- Registration Form Section -->
-    <section class="register-container">
-        <h2>Create an Account</h2>
-        <p>Join our community and share your café experiences!</p>
+<section class="register-container">
+    <h2>Create an Account</h2>
+    <p>Join our community!</p>
 
-        <form id="registerForm" enctype="multipart/form-data">
-            <!-- Username Input -->
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required placeholder="Enter your username">
+    <form id="registerForm" enctype="multipart/form-data">
+        <label for="full_name">Full Name:</label>
+        <input type="text" id="full_name" name="full_name" required placeholder="Enter your full name">
 
-            <!-- Email Input -->
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required placeholder="Enter your email">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required placeholder="Enter your username">
 
-            <!-- Password Input -->
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required placeholder="Enter your password">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="Enter your email">
 
-            <!-- Avatar Upload -->
-            <label for="avatar">Upload Avatar</label>
-            <input type="file" id="avatar" name="avatar" accept="image/*">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter your password">
 
-            <!-- Short Description -->
-            <label for="description">Short Description (Optional)</label>
-            <textarea id="description" name="description" placeholder="Tell us something about yourself..."></textarea>
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address" required placeholder="Enter your address">
+    
+        <label for="contact_number">Contact Number</label>
+        <input type="text" id="contact_number" name="contact_number" required placeholder="Enter your contact number">
 
-            <!-- Submit Button -->
-            <button type="submit">Register</button>
-        </form>
-    </section>
+        <label for="avatar">Upload Avatar</label>
+        <input type="file" id="avatar" name="avatar" accept="image/*">
 
-    <footer>
-        <p>&copy; 2025 TasteCheck. All Rights Reserved.</p>
-        <a href="login.html">Login</a> | <a href="#">Sign Up</a>
-    </footer>
+        <button type="submit">Register</button>
+    </form>
+</section>
 
-    <script>
-    document.getElementById("registerForm").addEventListener("submit", async function(event) {
-    event.preventDefault(); // Prevent default form submission
+<footer>
+    <p>&copy; 2025 FoodLoftPH. All Rights Reserved.</p>
+    <a href="login.html">Login</a>
+</footer>
+
+<script>
+document.getElementById("registerForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
 
     const formData = new FormData(this);
 
@@ -74,18 +70,17 @@
         const data = await response.json();
 
         if (response.ok) {
-            alert(data.message);
-            window.location.href = "Homepage.html"; 
+            alert("✅ Registration successful! Please login.");
+            window.location.href = "login.html";
         } else {
-            alert("❌ Error: " + data.message); 
+            alert("❌ Error: " + data.message);
         }
     } catch (error) {
         console.error("❌ Registration Error:", error);
         alert("An error occurred. Please try again.");
     }
 });
-
-    </script>
+</script>
 
 </body>
 </html>
